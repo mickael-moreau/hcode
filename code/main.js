@@ -1,4 +1,3 @@
-////////// ENTRY POINT
 document.getElementById('board_input').onchange = function(){
 
   var file = this.files[0];
@@ -11,6 +10,7 @@ document.getElementById('board_input').onchange = function(){
     // By lines
     var lines = this.result.split('\n');
     for(var line = 0; line < lines.length; line++){
+        console.log(lines[line]);
         Parser.loadBoard(line, lines[line], GameBoard);
     }
 
