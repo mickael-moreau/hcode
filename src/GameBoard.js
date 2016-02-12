@@ -3,7 +3,7 @@ var GameBoard = {
   'c': 0,
   'drone':[],
   'turn':0,
-  'max':0
+  'max':0,
 };
 
 var products = [];
