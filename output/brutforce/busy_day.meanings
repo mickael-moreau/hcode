@@ -1,0 +1,57 @@
+# BUT : brutforce 1 => satisfaire 1 commande
+# busy_day.txt
+Object
+c: 0
+drone: [] (0)
+max: 0
+max_payload: 200
+nb_columns: 600
+nb_drones: 30
+nb_orders: 1250
+nb_product_type: 400
+nb_row: 400
+nb_turns: 112993
+nb_warehouses: 10
+orders: Array (1250)
+    0Object
+        loc: {x: 340, y: 371}
+        nb_item_by_type: {6: 1, 12: 1, 42: 1, 183: 1, 220: 1, 226: 1, 280: 1, 299: 1}
+warehouses: Array (10)
+    0{loc: {x: 113, y: 179}, nb_item_by_type: {0: 0, 1: 0, 2: 5, 3: 1, 4: 0, 5: 0, 6: 0, 7: 0, 8: 2, 9: 0, …}}
+    1{loc: {x: 234, y: 599}, nb_item_by_type: Object}
+    2{loc: {x: 195, y: 89}, nb_item_by_type: Object}
+    3{loc: {x: 215, y: 207}, nb_item_by_type: Object}
+    4{loc: {x: 220, y: 326}, nb_item_by_type: Object}
+    5{loc: {x: 182, y: 193}, nb_item_by_type: Object}
+    6{loc: {x: 75, y: 418}, nb_item_by_type: Object}
+    7{loc: {x: 228, y: 140}, nb_item_by_type: Object}
+    8{loc: {x: 310, y: 26}, nb_item_by_type: Object}
+    9{loc: {x: 297, y: 423}, nb_item_by_type: Object}
+weights_by_type: [73, 40, 84, 107, 52, 36, 13, 74, 36, 94, …]
+
+[01]= ? # TODO nb commandes = nb lines
+
+# Load/Unload command
+● the ID of the drone that the command is for
+● the command tag ­ a single character, either ‘L’ (for load) or ‘U’ (for unload),
+● the ID of the warehouse from which we load items / to which we unload items
+● the ID of the product type
+● the number of items of the product type to be loaded or unloaded ­ a p ositive i nteger
+# Example command: 0 L 1 2 3 (Command to drone 0, load at warehouse 1 products of product type 2, three of them.
+[02]=  =>
+
+# Deliver command
+● the ID of the drone that the command is for
+● the command tag ­ single character ‘D’
+● the ID of the customer order we are delivering items for
+● the ID of the product type
+● the number of items of the product type to be delivered ­ a p ositive i nteger
+# Example command: 0 D 1 2 3 (Command to drone 0, deliver for order 1 items of product type 2, three of them.
+[03]=  =>
+
+# Wait command
+● the ID of the drone that the command is for
+● the command tag ­ single character ‘W’
+● the number of turns for which the drone needs to wait ­ a p ositive i nteger
+# Example command:  0W3 (Command to drone 0, wait for three turns)
+[04]=  =>
