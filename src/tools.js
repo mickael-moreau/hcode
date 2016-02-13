@@ -3,6 +3,8 @@ function assert(condition, message) {
     if (!condition) {
         message = message || "Assertion failed";
         if (typeof Error !== "undefined") {
+            // TODO : need the caller stack trace, not the current line stack
+            // trace, to trace error to real breaking point
             throw new Error(message);
         }
         throw message; // Fallback
@@ -10,13 +12,100 @@ function assert(condition, message) {
 }
 
 if (!String.prototype.format) {
-  String.prototype.format = function() {
-    var args = arguments;
-    return this.replace(/{(\d+)}/g, function(match, number) {
-      return typeof args[number] != 'undefined'
-        ? args[number]
-        : match
-      ;
-    });
-  };
+    String.prototype.format = function() {
+        var args = arguments;
+        return this.replace(/{(\d+)}/g, function(match, number) {
+            return typeof args[number] != 'undefined'
+            ? args[number]
+            : match
+            ;
+        });
+    };
+}
+
+var Tools = {
+    enable_debug:false,
+    enable_debug_deep:false,
+    enable_info:true,
+    enable_important:true,
+};
+
+// var callback = function (key, value, initial) {...}
+Tools.reduce = function(callback, obj, initial) {
+    if (typeof callback === 'string') {
+        callback = function (key, value, initial) {
+            //return value[callback]
+            assert(false, 'TODO : accept string callback, on value ? or on initial ?');
+        };
+    }
+
+    assert(typeof(callback) === 'function',
+    'You must define a callback Ex : var callback = function (key, value, initial) {...}');
+
+    for (var variable in obj) {
+        if (obj.hasOwnProperty(variable)) {
+            initial = callback(variable, obj[variable], initial);
+        }
+    }
+    return initial;
+};
+
+// var callback = function (key, value) {...}
+Tools.map = function(callback, obj) {
+    assert(typeof(callback) === 'function',
+    'You must define a callback Ex : var callback = function (key, value) {...}');
+
+    for (var variable in obj) {
+        if (obj.hasOwnProperty(variable)) {
+            var res = callback(variable, obj[variable]);
+            if (false === res) { // false return means filter this value
+                delete obj[variable];
+                continue;
+            }
+            assert(res && res.length > 0,
+            'You must return an array with [key,value] or [value] from the map callback');
+            // assert(obj instanceof Array,
+            // 'You returned an array with one value, your target object should be an array');
+            if (2 === res.length && res[0] !== variable) {
+                delete obj[variable];
+                variable = res[0];
+            }
+            if (2 === res.length){
+                obj[variable] = res[1];
+            } else {
+                obj[variable] = res[0];
+            }
+        }
+    }
+    return obj;
+};
+
+
+Tools.reduce_printer = function (key, value, initial) {
+    initial.push(key + ' -> ' + value);
+    return initial;
+};
+Tools.debug = function (msg) {
+    // TODO : get caller class and check enable_info by class, to be able to
+    // debug specific classes on the fly
+    if (this.enable_debug) {
+        console.log(msg);
+    }
+}
+Tools.debug_deep = function (msg) {
+    // TODO : get caller class and check enable_info by class, to be able to
+    // debug specific classes on the fly
+    if (this.enable_debug_deep) {
+        console.log(msg);
+    }
+}
+Tools.info = function (msg) {
+    if (this.enable_info) {
+        console.log(msg);
+    }
+}
+Tools.important = function (msg) {
+    if (this.enable_important) {
+        console.log(msg);
+    }
 }
