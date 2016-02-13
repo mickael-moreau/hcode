@@ -16,6 +16,18 @@ document.getElementById('board_input').onchange = function(){
 
     Tools.info('Game loaded');
     Tools.info(GameBoard);
+
+    Tools.enable_debug_deep = true;
+    Tools.enable_debug = true;
+    var solution = Solver.solveBoard(GameBoard);
+
+    var txt_solution = solution.length + '\n' + solution.join('\n');
+    document.body.innerHTML += '<pre>' + txt_solution + '</pre>';
+
+    download('output.txt', txt_solution);
+
+    Tools.info('Game solved');
+    Tools.info(solution);
  };
   reader.readAsText(file);
 };

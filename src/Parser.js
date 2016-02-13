@@ -60,6 +60,7 @@ Parser.loadBoard = function(index, input, output) {
     if (index >= 4 && index <= warhouse_end_loading_sentinel) {
         if (0 === index % 2) {
             var warhouse = {
+                id: Parser.current_warhouses_it,
                 loc: {x:parseInt(tokens[0]), y:parseInt(tokens[1])},
                 nb_item_by_type:{},
             };
@@ -107,6 +108,7 @@ Parser.loadBoard = function(index, input, output) {
         switch (Parser.order_modulo) {
             case 0:
             var order = {
+                id : Parser.current_order_id,
                 loc : {x:parseInt(tokens[0]), y:parseInt(tokens[1])},
                 nb_item_by_type:{},
             };

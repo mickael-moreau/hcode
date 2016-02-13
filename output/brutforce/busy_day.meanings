@@ -53,5 +53,5 @@ weights_by_type: [73, 40, 84, 107, 52, 36, 13, 74, 36, 94, …]
 ● the ID of the drone that the command is for
 ● the command tag ­ single character ‘W’
 ● the number of turns for which the drone needs to wait ­ a p ositive i nteger
-# Example command:  0W3 (Command to drone 0, wait for three turns)
+# Example command:  0 W 3 (Command to drone 0, wait for three turns)
 [04]=  =>
