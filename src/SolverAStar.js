@@ -1,16 +1,9 @@
-var Solver = {
-    current_warhouses_it:0,
-    current_order_id:0,
-    order_modulo:0,
+var SolverAStar = {
 };
 
 // 100 100 3 50 500
 // 100rows,1 00columns,3drones,50turns,maxpayloadis500u
-Solver.solveBoard = function(input) {
-    var CMD_LOAD = 'Load';
-    var CMD_UNLOAD = 'Unload';
-    var CMD_DELIVER = 'Deliver';
-    var CMD_WAIT = 'Wait';
+SolverAStar.solveBoard = function(input) {
     // Tools.debug_deep('' + index + ':' + input);
     // assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
     var drone_cmds = [];
@@ -72,7 +65,7 @@ Solver.solveBoard = function(input) {
             }
 
             cmd = {
-                type:CMD_LOAD,
+                type:SolverBrutforce.CMD_LOAD,
                 drone_id: 0,
                 warehouse_id: target_warehouses.id,
                 product_type: type,
@@ -80,7 +73,7 @@ Solver.solveBoard = function(input) {
             };
             drone_cmds.push(cmd);
             cmd = {
-                type:CMD_DELIVER,
+                type:SolverBrutforce.CMD_DELIVER,
                 drone_id: 0,
                 order_id: order_id,
                 product_type: type,
@@ -95,37 +88,5 @@ Solver.solveBoard = function(input) {
     }, order.nb_item_by_type);
     Tools.debug(drone_cmds);
 
-    // Compile drone cmds to subject solution
-    var translated_cmds = [];
-    Tools.map(function(it, drone_cmd) {
-        switch (drone_cmd.type) {
-            case CMD_LOAD:
-            translated_cmds.push([
-                drone_cmd.drone_id, 'L', drone_cmd.warehouse_id,
-                drone_cmd.product_type, drone_cmd.nb_items
-            ].join(' '));
-            break;
-            case CMD_UNLOAD:
-            translated_cmds.push([
-                drone_cmd.drone_id, 'U', drone_cmd.warehouse_id,
-                drone_cmd.product_type, drone_cmd.nb_items
-            ].join(' '));
-            break;
-            case CMD_DELIVER:
-            translated_cmds.push([
-                drone_cmd.drone_id, 'D', drone_cmd.order_id,
-                drone_cmd.product_type, drone_cmd.nb_items
-            ].join(' '));
-            break;
-            case CMD_WAIT:
-            translated_cmds.push([
-                drone_cmd.drone_id, 'W', drone_cmd.waiting_truns,
-                drone_cmd.product_type, drone_cmd.nb_items
-            ].join(' '));
-            break;
-        }
-        return [it, drone_cmd]; // TODO : array.walk
-    }, drone_cmds);
-
-    return translated_cmds;
+    return SolverBrutforce.translate_cmd(drone_cmds);
 };

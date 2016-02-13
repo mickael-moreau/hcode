@@ -19,7 +19,8 @@ document.getElementById('board_input').onchange = function(){
 
     Tools.enable_debug_deep = true;
     Tools.enable_debug = true;
-    var solution = Solver.solveBoard(GameBoard);
+    //var solution = SolverBrutforce.solveBoard(GameBoard);
+    var solution = SolverAStar.solveBoard(GameBoard);
 
     var txt_solution = solution.length + '\n' + solution.join('\n');
     document.body.innerHTML += '<pre>' + txt_solution + '</pre>';
