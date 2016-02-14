@@ -61,7 +61,7 @@ SolverBrutforceV3.solveBoard = function(input) {
 
                     if (0 === nb_items) {
                         // order have been fullfilled for this type, go to next one
-                        break;
+                        continue;
                     }
                     var weight = input.weights_by_type[type];
                     var path_payload = nb_items * weight;
@@ -138,9 +138,9 @@ SolverBrutforceV3.solveBoard = function(input) {
         }
         optimal.order.nb_item_by_type[optimal.type] -= optimal.path_max_item;
         var order_is_fullfilled = false;
-        for (var i = 0; i < optimal.order.nb_item_by_type.length; i++) {
+        for (var type in optimal.order.nb_item_by_type) {
             order_is_fullfilled = true;
-            if (0 !== optimal.order.nb_item_by_type[i]) {
+            if (0 !== optimal.order.nb_item_by_type[type]) {
                 order_is_fullfilled = false;
                 break;
             }

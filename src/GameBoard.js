@@ -1,7 +1,6 @@
 var window = {};
 importScripts(
-    //'libs/ymljs/yaml.min.js'
-    'libs/ymljs/yaml.js'
+    'libs/ymljs/yaml.min.js'
 );
 
 var GameBoard = {

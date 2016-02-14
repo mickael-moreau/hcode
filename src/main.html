@@ -7,6 +7,9 @@
 
     <div id="game_viewer"></div>
 
+    <div id="log_viewer"></div>
+
+    <script src="libs/ymljs/yaml.min.js" ></script>
     <script src="Tools.js" ></script>
     <script>
     if (window.Worker) {
@@ -29,6 +32,9 @@
                         }
                         case 'print': document.getElementById('game_viewer')
                         .innerHTML = '<pre>' + e.data.print + '</pre>';
+                        break;
+                        case 'log': document.getElementById('log_viewer')
+                        .innerHTML += '<p>' + e.data.log + '</p>';
                         break;
                         default: {
                             Tools.info('Unknow message from main web worker');

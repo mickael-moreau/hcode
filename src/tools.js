@@ -1,3 +1,10 @@
+if (typeof window === "undefined" || window === null) {
+var window = {};
+importScripts(
+    'libs/ymljs/yaml.min.js'
+);
+}
+
 ////////// TOOLS
 function assert(condition, message) {
     if (!condition) {
@@ -42,6 +49,7 @@ var Tools = {
     enable_debug_deep:false,
     enable_info:true,
     enable_important:true,
+    start_date:new Date(),
 };
 
 // var callback = function (key, value, initial) {...}
@@ -98,28 +106,43 @@ Tools.map = function(callback, obj) {
 Tools.reduce_printer = function (key, value, initial) {
     initial.push(key + ' -> ' + value);
     return initial;
-};
+}
+Tools.log  = function (msg) {
+    var endTime = new Date();
+    // time difference in ms
+    var timeDiff = endTime - Tools.startTime;
+    // strip the ms
+    timeDiff /= 1000;
+
+    console.log(msg);
+    if ('string' === typeof msg) {
+        postMessage({
+            type:'log',
+            log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
+        });
+    }
+}
 Tools.debug = function (msg) {
     // TODO : get caller class and check enable_info by class, to be able to
     // debug specific classes on the fly
     if (this.enable_debug) {
-        console.log(msg);
+        Tools.log(msg);
     }
 }
 Tools.debug_deep = function (msg) {
     // TODO : get caller class and check enable_info by class, to be able to
     // debug specific classes on the fly
     if (this.enable_debug_deep) {
-        console.log(msg);
+        Tools.log(msg);
     }
 }
 Tools.info = function (msg) {
     if (this.enable_info) {
-        console.log(msg);
+        Tools.log(msg);
     }
 }
 Tools.important = function (msg) {
     if (this.enable_important) {
-        console.log(msg);
+        Tools.log(msg);
     }
 }
