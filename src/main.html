@@ -4,11 +4,39 @@
 <body>
     <input type='file' id="board_input" title="Board Input">
     <script src="Tools.js" ></script>
-    <script src="GameBoard.js" ></script>
-    <script src="Parser.js" ></script>
-    <script src="SolverBrutforce.js" ></script>
-    <script src="SolverBrutforceV2.js" ></script>
-    <script src="SolverAStar.js" ></script>
-    <script src="main.js" ></script>
+    <script>
+    if (window.Worker) {
+        var myWorker = new Worker("main.js");
+        document.getElementById('board_input').onchange = function(){
+
+            var file = this.files[0];
+
+            var reader = new FileReader();
+            reader.onload = function(progressEvent){
+                myWorker.onmessage = function(e) {
+                    var solution = e.data;
+                    var txt_solution = solution.length + '\n' + solution.join('\n');
+                    document.body.innerHTML += '<pre>' + txt_solution + '</pre>';
+
+                    download('output.txt', txt_solution);
+
+                    Tools.info('Game solved');
+                    Tools.info(solution);
+                    console.log('Message received from worker');
+                }
+
+                // Entire file
+                //console.log(this.result);
+                myWorker.postMessage({
+                    file_content:this.result
+                });
+            };
+            reader.readAsText(file);
+        };
+        //myWorker.postMessage([first.value,second.value]);
+    } else {
+        alert('You need web workers enabled for this code to run');
+    }
+    </script>
 </body>
 </html>

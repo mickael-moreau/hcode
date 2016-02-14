@@ -1,15 +1,18 @@
-////////// ENTRY POINT
-document.getElementById('board_input').onchange = function(){
+// https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
+importScripts(
+    "Tools.js",
+    "GameBoard.js",
+    "Parser.js",
+    "SolverBrutforce.js",
+    "SolverBrutforceV2.js",
+    "SolverBrutforceV3.js",
+    "SolverAStar.js"
+);
 
-  var file = this.files[0];
-
-  var reader = new FileReader();
-  reader.onload = function(progressEvent){
-    // Entire file
-    //console.log(this.result);
-
+onmessage = function(e) {
+    ////////// ENTRY POINT
     // By lines
-    var lines = this.result.split('\n');
+    var lines = e.data.file_content.split('\n');
     for(var line = 0; line < lines.length; line++){
         Parser.loadBoard(line, lines[line], GameBoard);
     }
@@ -20,16 +23,8 @@ document.getElementById('board_input').onchange = function(){
     //Tools.enable_debug_deep = true;
     Tools.enable_debug = true;
     //var solution = SolverBrutforce.solveBoard(GameBoard);
-    var solution = SolverBrutforceV2.solveBoard(GameBoard);
+    //var solution = SolverBrutforceV2.solveBoard(GameBoard);
+    var solution = SolverBrutforceV3.solveBoard(GameBoard);
     //var solution = SolverAStar.solveBoard(GameBoard);
-
-    var txt_solution = solution.length + '\n' + solution.join('\n');
-    document.body.innerHTML += '<pre>' + txt_solution + '</pre>';
-
-    download('output.txt', txt_solution);
-
-    Tools.info('Game solved');
-    Tools.info(solution);
- };
-  reader.readAsText(file);
-};
+    postMessage(solution);
+}

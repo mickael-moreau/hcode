@@ -1,8 +1,4 @@
 var SolverBrutforceV2 = {
-    CMD_LOAD : 'Load',
-    CMD_UNLOAD : 'Unload',
-    CMD_DELIVER : 'Deliver',
-    CMD_WAIT : 'Wait',
 };
 
 // 100 100 3 50 500
