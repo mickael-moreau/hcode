@@ -49,7 +49,7 @@ var Tools = {
     enable_debug_deep:false,
     enable_info:true,
     enable_important:true,
-    start_date:new Date(),
+    startTime:new Date(),
 };
 
 // var callback = function (key, value, initial) {...}
