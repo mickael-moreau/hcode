@@ -2,33 +2,45 @@
 <head>
 </head>
 <body>
+
     <input type='file' id="board_input" title="Board Input">
+
+    <div id="game_viewer"></div>
+
     <script src="Tools.js" ></script>
     <script>
     if (window.Worker) {
         var myWorker = new Worker("main.js");
+
         document.getElementById('board_input').onchange = function(){
-
             var file = this.files[0];
-
             var reader = new FileReader();
             reader.onload = function(progressEvent){
                 myWorker.onmessage = function(e) {
-                    var solution = e.data;
-                    var txt_solution = solution.length + '\n' + solution.join('\n');
-                    document.body.innerHTML += '<pre>' + txt_solution + '</pre>';
-
-                    download('output.txt', txt_solution);
-
-                    Tools.info('Game solved');
-                    Tools.info(solution);
-                    console.log('Message received from worker');
+                    switch (e.data.type) {
+                        case 'solution': {
+                            var solution = e.data.solution;
+                            var txt_solution = solution.length + '\n' + solution.join('\n');
+                            document.body.innerHTML += '<pre>' + txt_solution + '</pre>';
+                            download('output.txt', txt_solution);
+                            Tools.info('Game solved');
+                            Tools.info(solution);
+                            break;
+                        }
+                        case 'print': document.getElementById('game_viewer')
+                        .innerHTML = '<pre>' + e.data.print + '</pre>';
+                        break;
+                        default: {
+                            Tools.info('Unknow message from main web worker');
+                            Tools.info(e);
+                        }
+                    }
                 }
 
                 // Entire file
                 //console.log(this.result);
                 myWorker.postMessage({
-                    file_content:this.result
+                    file_content:this.result,
                 });
             };
             reader.readAsText(file);

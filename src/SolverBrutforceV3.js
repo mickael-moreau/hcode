@@ -129,6 +129,7 @@ SolverBrutforceV3.solveBoard = function(input) {
         // TODO : assum min of all orders left is 1 item of min weight
         if (optimal.total_cost + min_weight > input.nb_turns) {
             available_drones.splice(optimal.drone_available_index, 1);
+            Tools.info('nb_drones lefts : ' + available_drones.length);
         }
         position_by_drone_worker_id[worker_id] = optimal.order.loc;
         optimal.warehouse.nb_item_by_type[optimal.type] -= optimal.path_max_item;
@@ -136,13 +137,17 @@ SolverBrutforceV3.solveBoard = function(input) {
             warehouses_by_type[optimal.type].splice(optimal.warehouse_id, 1);
         }
         optimal.order.nb_item_by_type[optimal.type] -= optimal.path_max_item;
-        var order_is_fullfilled = true;
+        var order_is_fullfilled = false;
         for (var i = 0; i < optimal.order.nb_item_by_type.length; i++) {
-            order_is_fullfilled = order_is_fullfilled
-            && 0 === optimal.order.nb_item_by_type[i];
+            order_is_fullfilled = true;
+            if (0 !== optimal.order.nb_item_by_type[i]) {
+                order_is_fullfilled = false;
+                break;
+            }
         }
         if (order_is_fullfilled) {
             available_orders.splice(optimal.order_available_index,1);
+            Tools.info('nb_orders lefts : ' + available_orders.length);
         }
 
         // send command with that optimal move
@@ -162,7 +167,6 @@ SolverBrutforceV3.solveBoard = function(input) {
             nb_items: optimal.path_max_item,
         };
         drone_cmds.push(cmd);
-        Tools.info('nb_orders lefts : ' + available_orders.length);
     }
     Tools.debug(drone_cmds);
 
