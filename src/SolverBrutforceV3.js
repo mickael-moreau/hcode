@@ -41,6 +41,7 @@ SolverBrutforceV3.solveBoard = function(input) {
     }
     var available_orders = input.orders.slice(); // copy array by ref : Warning : will modify in both, not a deep copy
 
+    // TODO optims : fullfill drones carriage ? => only take 1 product of specific type... may be liste all orders by type, and let drone load then unload etc...
     // Do everthing to make it work until time limites
     // Brut force V3 : Each drone start by the closest go and back, priority to the drone that have the minimal cost first
     // Take n commandes, use maximum drones, 1 drone per commandes
