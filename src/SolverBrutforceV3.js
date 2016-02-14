@@ -11,6 +11,13 @@ SolverBrutforceV3.solveBoard = function(input) {
     var drone_cmds = [];
 
     // Tools
+    var min_weight = null;
+    for (var type in input.weights_by_type) {
+        var w = input.weights_by_type[type];
+        if (null === min_weight || w < min_weight) {
+            min_weight = w;
+        }
+    }
     var warehouses_by_type = {};
     for (var it = 0; it < input.warehouses.length; it++) {
         var warehouse = input.warehouses[it];
@@ -48,29 +55,31 @@ SolverBrutforceV3.solveBoard = function(input) {
                 var order = available_orders[order_av_idx];
                 var order_id = order.id;
 
-                Tools.map(function(type, nb_items) {
+                for (var type in order.nb_item_by_type) {
+                    var nb_items = order.nb_item_by_type[type];
+
                     if (0 === nb_items) {
                         // order have been fullfilled for this type, go to next one
-                        return [type, nb_items]; // TODO walk instead of map...
+                        break;
                     }
                     var weight = input.weights_by_type[type];
                     var path_payload = nb_items * weight;
-                    Tools.debug_deep('Path payload : ' + path_payload);
+                    //Tools.debug_deep('Path payload : ' + path_payload);
                     if (path_payload > input.max_payload) { // OPTIMM : >= ?
                         path_payload = input.max_payload;
-                        Tools.debug_deep('Adjusted payload : ' + path_payload);
+                        //Tools.debug_deep('Adjusted payload : ' + path_payload);
                     }
                     var path_max_item = Math.floor(path_payload / weight);
-                    Tools.debug_deep('Items handled : ' + path_max_item + ' / ' + nb_items);
+                    //Tools.debug_deep('Items handled : ' + path_max_item + ' / ' + nb_items);
                     var available_warehouses = warehouses_by_type[type];
-                    for (var it = 0; it < available_warehouses.length; it++) {
-                        var warehouse = available_warehouses[it];
+                    for (var warhouse_it = 0; warhouse_it < available_warehouses.length; warhouse_it++) {
+                        var warehouse = available_warehouses[warhouse_it];
                         var nb_items_available = warehouse.nb_item_by_type[type];
                         if (nb_items_available === 0) {
-                            Tools.debug_deep(
-                                'warehouse[{2}] : no item of type {1} available for commande {0} '
-                                .format(order_id, type, warehouse.id)
-                            );
+                            // Tools.debug_deep(
+                            //     'warehouse[{2}] : no item of type {1} available for commande {0} '
+                            //     .format(order_id, type, warehouse.id)
+                            // );
                             continue;
                         }
                         assert(nb_items_available > 0,
@@ -96,14 +105,15 @@ SolverBrutforceV3.solveBoard = function(input) {
                                 order:order,
                                 order_available_index:order_av_idx,
                                 warehouse: warehouse,
+                                warhouse_it: warhouse_it,
                                 path_max_item:path_max_item,
                                 total_cost:total_cost,
                                 type:type,
                             };
                         }
                     }
-                    return [type, nb_items]; // TODO : not used return code => should be .walk function
-                }, order.nb_item_by_type);
+                    break;
+                }
             }
         }
 
@@ -115,10 +125,15 @@ SolverBrutforceV3.solveBoard = function(input) {
         var worker_id = optimal.drone;
         cost_by_drone_worker_id[worker_id] = optimal.total_cost;
         // TODO : should clean available drone not capable to carry product anymore... pb : will never over passe time limite by current algo...
+        // TODO : assum min of all orders left is 1 item of min weight
+        if (optimal.total_cost + min_weight > input.nb_turns) {
+            available_drones.splice(optimal.drone_available_index, 1);
+        }
         position_by_drone_worker_id[worker_id] = optimal.order.loc;
         optimal.warehouse.nb_item_by_type[optimal.type] -= optimal.path_max_item;
-        Tools.debug_deep('Stock for warehouse[' + it + '] is '
-        + warehouse.nb_item_by_type[optimal.type] + ' for type ' + optimal.type);
+        if (0 === optimal.warehouse.nb_item_by_type[optimal.type]) {
+            warehouses_by_type[optimal.type].splice(optimal.warehouse_id, 1);
+        }
         optimal.order.nb_item_by_type[optimal.type] -= optimal.path_max_item;
         var order_is_fullfilled = true;
         for (var i = 0; i < optimal.order.nb_item_by_type.length; i++) {
