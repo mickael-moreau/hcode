@@ -44,12 +44,14 @@ SolverBrutforceV4.solveBoard = function(input) {
     var available_orders = input.orders.slice(); // copy array by ref : Warning : will modify in both, not a deep copy
     var min_weight = null;
     var min_of_orders_items_by_type = {};
+    var max_of_orders_items_by_type = {};
     for (var type in input.weights_by_type) {
         var w = input.weights_by_type[type];
         if (null === min_weight || w < min_weight) {
             min_weight = w;
         }
         min_of_orders_items_by_type[type] = Infinity;
+        max_of_orders_items_by_type[type] = 0;
     }
 
     // Chaque drone prend un max par ordre des type les plus fournis dans la
@@ -92,6 +94,9 @@ SolverBrutforceV4.solveBoard = function(input) {
             if (min_of_orders_items_by_type[type] > order.nb_item_by_type[type]) {
                 min_of_orders_items_by_type[type] = order.nb_item_by_type[type];
             }
+            if (max_of_orders_items_by_type[type] < order.nb_item_by_type[type]) {
+                max_of_orders_items_by_type[type] = order.nb_item_by_type[type];
+            }
         }
     }
 
@@ -105,7 +110,8 @@ SolverBrutforceV4.solveBoard = function(input) {
             if (Infinity === min_of_orders_items_by_type[drone.type]) {
                 min_of_orders_items_by_type[drone.type] = 0;
             }
-            if (drone.nb_item < min_of_orders_items_by_type[drone.type]) {
+            if (drone.nb_item < min_of_orders_items_by_type[drone.type]
+            || 0 === max_of_orders_items_by_type[drone.type]) {
                 optimal = null;
                 for (var next_type in warehouses_by_type) {
                     var available_warehouses = warehouses_by_type[next_type];
@@ -266,8 +272,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                         .computeDistance(position, warehouse.loc);
                         var delta_cost_to_order = SolverBrutforceV4
                         .computeDistance(warehouse.loc, order.loc);
-                        var total_cost = cost + delta_cost_to_warehouse
-                        + delta_cost_to_order + 2; // our drone go to warehouse and back home + take 1 turn for loading and 1 turn to deliver
+                        var total_cost = cost + delta_cost_to_warehouse + 1; // our drone go to warehouse and back home + take 1 turn for loading and 1 turn to deliver
                         // Distances must be values between [0..1], associating meanings this way : [best..worst]
                         var euclidian_distance = total_cost / input.nb_turns;
                         // Distances must be values between [0..1], associating meanings this way : [best..worst]
@@ -337,6 +342,12 @@ SolverBrutforceV4.solveBoard = function(input) {
             min_of_orders_items_by_type[optimal.type]
             = optimal.order.nb_item_by_type[optimal.type]
         }
+        if (optimal.order.nb_item_by_type[optimal.type]
+            > max_of_orders_items_by_type[optimal.type]
+        ) {
+            max_of_orders_items_by_type[optimal.type]
+            = optimal.order.nb_item_by_type[optimal.type]
+        }
         if (0 === optimal.order.nb_item_by_type[optimal.type]) {
             x_y_nbCategoriesToFullfill[optimal.order.loc.x][optimal.order.loc.y]
             .nbCategoriesToFullfill -= 1;
@@ -354,8 +365,13 @@ SolverBrutforceV4.solveBoard = function(input) {
             }
         }
         if (order_is_fullfilled) {
+            var local_score = Math.ceil((input.nb_turns - optimal.total_cost)
+            / input.nb_turns * 100);
+            GameBoard.global_score += local_score;
             available_orders.splice(optimal.order_available_index,1);
-            Tools.info('nb_orders lefts : ' + available_orders.length);
+            Tools.info('nb_orders lefts : ' + available_orders.length
+            + ' with drone time : ' + optimal.total_cost
+            + ' giving us : ' + local_score + 'pts on ' + GameBoard.global_score);
         }
         drone.nb_item -= optimal.path_max_item;
         drone.type = optimal.type;
