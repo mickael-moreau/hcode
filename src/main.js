@@ -6,6 +6,7 @@ importScripts(
     "SolverBrutforce.js",
     "SolverBrutforceV2.js",
     "SolverBrutforceV3.js",
+    "SolverBrutforceV4.js",
     "SolverAStar.js"
 );
 
@@ -29,7 +30,8 @@ onmessage = function(e) {
     Tools.enable_debug = true;
     //var solution = SolverBrutforce.solveBoard(GameBoard);
     //var solution = SolverBrutforceV2.solveBoard(GameBoard);
-    var solution = SolverBrutforceV3.solveBoard(GameBoard);
+    //var solution = SolverBrutforceV3.solveBoard(GameBoard);
+    var solution = SolverBrutforceV4.solveBoard(GameBoard);
     //var solution = SolverAStar.solveBoard(GameBoard);
     postMessage({
         type:'solution',
