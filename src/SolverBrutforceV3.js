@@ -146,8 +146,13 @@ SolverBrutforceV3.solveBoard = function(input) {
             }
         }
         if (order_is_fullfilled) {
+            var local_score = Math.ceil((input.nb_turns - optimal.total_cost)
+            / input.nb_turns * 100);
+            GameBoard.global_score += local_score; // TODO : missing something somewher, did find 82239 instead of 82118pt in team submission for Data Set: Busy Day
             available_orders.splice(optimal.order_available_index,1);
-            Tools.info('nb_orders lefts : ' + available_orders.length);
+            Tools.info('nb_orders lefts : ' + available_orders.length
+            + ' with drone time : ' + optimal.total_cost
+            + ' giving us : ' + local_score + 'pts on ' + GameBoard.global_score);
         }
 
         // send command with that optimal move
