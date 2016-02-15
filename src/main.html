@@ -5,8 +5,9 @@
 
     <input type='file' id="board_input" title="Board Input">
 
+    <div id="game_init"></div>
     <div id="game_viewer"></div>
-
+    
     <div id="log_viewer"></div>
 
     <script src="libs/ymljs/yaml.min.js" ></script>
@@ -14,6 +15,7 @@
     <script>
     if (window.Worker) {
         var myWorker = new Worker("main.js");
+        var need_init = true;
 
         document.getElementById('board_input').onchange = function(){
             var file = this.files[0];
@@ -30,9 +32,16 @@
                             Tools.info(solution);
                             break;
                         }
-                        case 'print': document.getElementById('game_viewer')
-                        .innerHTML = '<pre>' + e.data.print + '</pre>';
-                        break;
+                        case 'print': {
+                            if (need_init) {
+                                document.getElementById('game_init')
+                                .innerHTML = '<pre>' + e.data.print + '</pre>';
+                                need_init = false;
+                            }
+                            document.getElementById('game_viewer')
+                            .innerHTML = '<pre>' + e.data.print + '</pre>';
+                            break;
+                        }
                         case 'log': document.getElementById('log_viewer')
                         .innerHTML += '<p>' + e.data.log + '</p>';
                         break;
