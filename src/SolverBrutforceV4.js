@@ -82,10 +82,11 @@ SolverBrutforceV4.solveBoard = function(input) {
         if (!(order.loc.y in x_y_nbCategoriesToFullfill[order.loc.x])) {
             x_y_nbCategoriesToFullfill[order.loc.x][order.loc.y] = {};
         }
+        nb_categories = Object.keys(order.nb_item_by_type).length;
         x_y_nbCategoriesToFullfill[order.loc.x][order.loc.y].nbCategoriesToFullfill =
-        order.nb_item_by_type.length;
-        if (order.nb_item_by_type.length > max_categories_to_fullfill) {
-            max_categories_to_fullfill = order.nb_item_by_type.length;
+        nb_categories;
+        if (nb_categories > max_categories_to_fullfill) {
+            max_categories_to_fullfill = nb_categories;
         }
         for (var type in order.nb_item_by_type) {
             if (min_of_orders_items_by_type[type] > order.nb_item_by_type[type]) {
@@ -105,66 +106,64 @@ SolverBrutforceV4.solveBoard = function(input) {
                 min_of_orders_items_by_type[drone.type] = 0;
             }
             if (drone.nb_item < min_of_orders_items_by_type[drone.type]) {
-                var next_type = drone.type;
-                for (var type in warehouses_by_type) {
-                    var warehouse = null;
-                    var warehouses = warehouses_by_type[type];
-                    if (warehouses.length > 0) {
-                        warehouse = warehouses[0]; // TODO heuristique to chose best warehouse ?? (similar to downstaire no ??)
+                optimal = null;
+                for (var next_type in warehouses_by_type) {
+                    var available_warehouses = warehouses_by_type[next_type];
+                    for (var warhouse_it = 0; warhouse_it < available_warehouses.length; warhouse_it++) {
+                        var warehouse = available_warehouses[warhouse_it];
                         assert(null !== warehouse, 'Algo is may be bugging some where ?');
-                        if (warehouse.nb_item_by_type[type] > 0) {
-                            next_type = type; // TODO : heuristique to find best type to get from warehouses lefts ?
-                            break;
+                        if (0 === warehouse.nb_item_by_type[next_type]) {
+                            continue;
+                        }
+
+                        var nb_items_available = warehouse.nb_item_by_type[next_type];
+                        if (nb_items_available === 0) {
+                            // TODO : with current algo, shoul not go there unless speciifed in loading : clean loading board, and put assert not possible, algo bug here ?
+                            // Tools.debug_deep(
+                            //     'warehouse[{2}] : no item of type {1} available for commande {0} '
+                            //     .format(order_id, type, warehouse.id)
+                            // );
+                            //assert(false, 'Should no go up to there, algo bug...');
+                            continue;
+                        }
+                        assert(nb_items_available > 0,
+                            'Warehouse : Algo bug, can not have negative item available'
+                        );
+                        var cost = cost_by_drone_id[drone.id];
+                        var position = position_by_drone_id[drone.id];
+                        var delta_cost_to_warehouse = SolverBrutforceV4
+                        .computeDistance(position, warehouse.loc);
+                        var total_cost = cost + delta_cost_to_warehouse + 1; // our drone go to warehouse + take 1 turn for loading
+                        // Distances must be values between [0..1], associating meanings this way : [best..worst]
+                        var euclidian_distance = total_cost / input.nb_turns;
+                        // Distances must be values between [0..1], associating meanings this way : [best..worst]
+                        // TODO : distance taking in account density of type fullfillable by most orders close from all others
+                        // var manana_seguro_distance
+                        // = x_y_nbCategoriesToFullfill[order.loc.x][order.loc.y]
+                        // .nbCategoriesToFullfill
+                        // / max_categories_to_fullfill;
+                        var pondered_distance = euclidian_distance * 0.5; // TODO : playing with coefficient distance may improve / deprouve resuts..
+                        assert(!isNaN(total_cost), 'Warehouse : Something is wrong with total_cost');
+                        assert(!isNaN(pondered_distance), 'Warehouse : Something is wrong with pondered_distance');
+                        if (total_cost < input.nb_turns // Limite to possible move in time availability only
+                            && (
+                                null === optimal || pondered_distance < optimal.pondered_distance
+                            )
+                        ) {
+                            optimal = {
+                                warehouse: warehouse,
+                                pondered_distance:pondered_distance,
+                                go_to_next_loop: true,
+                                total_cost: total_cost,
+                                type: next_type,
+                            };
                         }
                     }
                 }
-                var available_warehouses = warehouses_by_type[next_type];
-                optimal = null;
-                for (var warhouse_it = 0; warhouse_it < available_warehouses.length; warhouse_it++) {
-                    var warehouse = available_warehouses[warhouse_it];
-                    var nb_items_available = warehouse.nb_item_by_type[next_type];
-                    if (nb_items_available === 0) {
-                        // TODO : with current algo, shoul not go there unless speciifed in loading : clean loading board, and put assert not possible, algo bug here ?
-                        // Tools.debug_deep(
-                        //     'warehouse[{2}] : no item of type {1} available for commande {0} '
-                        //     .format(order_id, type, warehouse.id)
-                        // );
-                        //assert(false, 'Should no go up to there, algo bug...');
-                        continue;
-                    }
-                    assert(nb_items_available > 0,
-                        'Algo bug, can not have negative item available'
-                    );
-                    var cost = cost_by_drone_id[drone.id];
-                    var position = position_by_drone_id[drone.id];
-                    var delta_cost_to_warehouse = SolverBrutforceV4
-                    .computeDistance(position, warehouse.loc);
-                    var total_cost = cost + delta_cost_to_warehouse + 1; // our drone go to warehouse + take 1 turn for loading
-                    // Distances must be values between [0..1], associating meanings this way : [best..worst]
-                    var euclidian_distance = total_cost / input.nb_turns;
-                    // Distances must be values between [0..1], associating meanings this way : [best..worst]
-                    // TODO : distance taking in account density of type fullfillable by most orders close from all others
-                    // var manana_seguro_distance
-                    // = x_y_nbCategoriesToFullfill[order.loc.x][order.loc.y]
-                    // .nbCategoriesToFullfill
-                    // / max_categories_to_fullfill;
-                    var pondered_distance = euclidian_distance * 0.5; // TODO : playing with coefficient distance may improve / deprouve resuts..
-                    if (total_cost < input.nb_turns // Limite to possible move in time availability only
-                        && (
-                            null === optimal || pondered_distance < optimal.pondered_distance
-                        )
-                    ) {
-                        optimal = {
-                            warehouse: warehouse,
-                            pondered_distance:pondered_distance,
-                            go_to_next_loop: true,
-                            total_cost: total_cost,
-                        };
-                    }
-                }
                 assert(null !== optimal, 'Algo bug, optimal must be set');
-                var path_max_item = optimal.warehouse.nb_item_by_type[next_type];
-                var weight = input.weights_by_type[next_type];
+                var path_max_item = optimal.warehouse.nb_item_by_type[optimal.type];
+                assert(!isNaN(path_max_item), 'Warehouse : Something is wrong with path_max_item');
+                var weight = input.weights_by_type[optimal.type];
                 var path_payload = path_max_item * weight;
                 //Tools.debug_deep('Path payload : ' + path_payload);
                 if (path_payload > input.max_payload) { // OPTIMM : >= ?
@@ -173,11 +172,31 @@ SolverBrutforceV4.solveBoard = function(input) {
                 }
                 path_max_item = Math.floor(path_payload / weight);
 
+                if (drone.nb_item > 0) {
+                    cmd = {
+                        type:SolverBrutforce.CMD_UNLOAD,
+                        drone_id: drone.id,
+                        warehouse_id: optimal.warehouse.id,
+                        product_type: drone.type,
+                        nb_items: drone.nb_item,
+                    };
+                    drone_cmds.push(cmd);
+                    if (drone.type in optimal.warehouse.nb_item_by_type) {
+                        optimal.warehouse.nb_item_by_type[drone.type]
+                        = drone.nb_item;
+                    } else {
+                        optimal.warehouse.nb_item_by_type[drone.type]
+                        += drone.nb_item;
+                    }
+                    assert(!isNaN(optimal.warehouse.nb_item_by_type[drone.type]),
+                    'Warhouse : Something is wrong with optimal.warehouse.nb_item_by_type');
+                    drone.nb_item = 0;
+                }
                 cmd = {
                     type:SolverBrutforce.CMD_LOAD,
                     drone_id: drone.id,
                     warehouse_id: optimal.warehouse.id,
-                    product_type: next_type,
+                    product_type: optimal.type,
                     nb_items: path_max_item,
                 };
                 drone_cmds.push(cmd);
@@ -189,11 +208,15 @@ SolverBrutforceV4.solveBoard = function(input) {
                     Tools.info('nb_drones lefts : ' + available_drones.length);
                 }
                 position_by_drone_id[drone.id] = optimal.warehouse.loc;
-                optimal.warehouse.nb_item_by_type[optimal.type] -= optimal.path_max_item;
+                optimal.warehouse.nb_item_by_type[optimal.type] -= path_max_item;
+                assert(!isNaN(optimal.warehouse.nb_item_by_type[optimal.type]),
+                '213: Warhouse : Something is wrong with optimal.warehouse.nb_item_by_type');
                 if (0 === optimal.warehouse.nb_item_by_type[optimal.type]) {
                     warehouses_by_type[optimal.type].splice(optimal.warehouse_id, 1);
                 }
-                drone.nb_item += optimal.path_max_item;
+                drone.nb_item += path_max_item;
+                drone.type = optimal.type;
+                assert(!isNaN(drone.nb_item), 'Warhouse : Something is wrong with drone.nb_item');
                 continue; // Switch to next drone, this drone will compute it's disance next turn, taking new position from others ones
             }
 
@@ -231,7 +254,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                             continue;
                         }
                         assert(nb_items_available > 0,
-                            'Algo bug, can not have negative item available'
+                            'Order : Algo bug, can not have negative item available'
                         );
                         if (path_max_item > nb_items_available) {// OPTIM : >= ?
                             path_max_item = nb_items_available;
@@ -254,6 +277,9 @@ SolverBrutforceV4.solveBoard = function(input) {
                         / max_categories_to_fullfill;
                         var pondered_distance = euclidian_distance * 0.5
                         + manana_seguro_distance * 0.5; // TODO : playing with coefficient distance may improve / deprouve resuts..
+                        assert(!isNaN(total_cost), 'Order : Something is wrong with total_cost');
+                        assert(!isNaN(pondered_distance), 'Order : Something is wrong with pondered_distance');
+                        assert(!isNaN(path_max_item), 'Order : Something is wrong with path_max_item');
                         if (total_cost < input.nb_turns // Limite to possible move in time availability only
                             && (
                                 null === optimal || pondered_distance < optimal.pondered_distance
@@ -278,6 +304,11 @@ SolverBrutforceV4.solveBoard = function(input) {
             }
         }
 
+        if (optimal !== null && optimal.go_to_next_loop) {
+            optimal = null;
+            continue; // TODO : below code should go inside for loop ?
+        }
+
         if (null === optimal) {
             Tools.info('No more optimal found, but still having order or drone available... exiting...');
             break;
@@ -288,10 +319,6 @@ SolverBrutforceV4.solveBoard = function(input) {
         if (optimal.total_cost + min_weight > input.nb_turns) {
             available_drones.splice(optimal.drone_available_index, 1);
             Tools.info('nb_drones lefts : ' + available_drones.length);
-        }
-        if (optimal !== null && optimal.go_to_next_loop) {
-            optimal = null;
-            continue; // TODO : below code should go inside for loop ?
         }
 
         // update board data with the optimal mouvement
@@ -310,12 +337,17 @@ SolverBrutforceV4.solveBoard = function(input) {
             min_of_orders_items_by_type[optimal.type]
             = optimal.order.nb_item_by_type[optimal.type]
         }
+        if (0 === optimal.order.nb_item_by_type[optimal.type]) {
+            x_y_nbCategoriesToFullfill[optimal.order.loc.x][optimal.order.loc.y]
+            .nbCategoriesToFullfill -= 1;
+            // TODO : remove from optimal.order.nb_item_by_type ?? not mandatory...
+        }
+        assert(!isNaN(optimal.warehouse.nb_item_by_type[optimal.type]),
+        '213: Warhouse : Something is wrong with optimal.warehouse.nb_item_by_type');
         var order_is_fullfilled = false;
         for (var type in optimal.order.nb_item_by_type) {
             order_is_fullfilled = true;
             var nb_item = optimal.order.nb_item_by_type[type];
-            x_y_nbCategoriesToFullfill[optimal.order.loc.x][optimal.order.loc.y]
-            .nbCategoriesToFullfill = optimal.order.nb_item_by_type.length;
             if (0 !== nb_item) {
                 order_is_fullfilled = false;
                 break;
@@ -326,6 +358,8 @@ SolverBrutforceV4.solveBoard = function(input) {
             Tools.info('nb_orders lefts : ' + available_orders.length);
         }
         drone.nb_item -= optimal.path_max_item;
+        drone.type = optimal.type;
+        assert(!isNaN(drone.nb_item), 'Something is wrong with drone.nb_item');
 
         // send command with that optimal move
         cmd = {
