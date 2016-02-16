@@ -6,12 +6,16 @@
 - hash judge : https://hashcodejudge.withgoogle.com/
 - test online : https://jsfiddle.net/nzaero/ys2cd7we/#&togetherjs=eBgwjtUs8w
 
-# 2 UNIX dependency (pas obligatoire)-----------------------------------------------------------------------
+# 2 UNIX dependency (pas obligatoire)
+
+- Pour reccuperer ma conf : 
+https://github.com/regnou/ALIAS/
 
 - paoloantinori/hhighlighter: https://github.com/paoloantinori/hhighlighter#screenshots
 curl http://beyondgrep.com/ack-2.08-single-file > ~/bin/ack && chmod 0755 !#:3
+https://github.com/regnou/ALIAS/blob/master/bin/_h.sh
 
-# 3 JAVA SECTION-----------------------------------------------------------------------
+# 3 JAVA SECTION
 
 - le code est dans le repertoire java
 
