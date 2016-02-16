@@ -27,5 +27,6 @@ alias   c='mvn clean install -U -Dgpg.skip=true    -DskipTests  2>&1        |  h
 - COMPILE avec test
 alias  ct='mvn clean install -U -Dgpg.skip=true                 2>/dev/null    | grep -v "DATABASECHANGELOG|executed|changeset|expected\ postgresql,\ got\ h2|Successfully\ released\ change\ log\ lock|Successfully\ acquired\ change\ log\ lock"   |  h -i $MVN_ALL'
 
-
+JAVA doc
+// read file ; https://eyalgo.com/2015/01/06/java-8-stream-and-lambda-expressions-parsing-file-example/
 
