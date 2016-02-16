@@ -17,7 +17,7 @@ https://github.com/regnou/ALIAS/blob/master/bin/_h.sh
 
 # 3 JAVA SECTION
 
-- le code est dans le repertoire java
+- le code est dans le repertoire java (classe App.java est le point d'entree MAIN)
 
 - HOW TO GENERATE THE ARCHETYPE USED :  https://github.com/akiraly/reusable-poms
 
