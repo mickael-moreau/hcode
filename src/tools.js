@@ -3,6 +3,11 @@ if (!is_node_js_env && (typeof window === "undefined" || window === null)) {
     importScripts(
         'libs/stacktrace/dist/stacktrace.min.js'
     );
+    // var module = {}; // TODO import not working in navigator web workers
+    // importScripts(
+    //     '../node_modules/js-yaml/dist/js-yaml.min.js'
+    // );
+    // var JsYaml = module.exports;
     var window = {};
     importScripts(
         'libs/ymljs/yaml.min.js' // TODO : jsyaml node module instead
@@ -205,7 +210,11 @@ Tools.log  = function (msg) {
             });
         }
     } else {
-        return console.log(JsYaml.dump(msg));
+        if (is_node_js_env) {
+            return console.log(JsYaml.dump(msg));
+        } else {
+            return console.log(msg);//window.YAML.stringify(msg));
+        }
     }
 }
 Tools.error = function (msg) {

@@ -17,9 +17,31 @@
     <div id="log_viewer"></div>
 
     <script src="libs/ymljs/yaml.min.js" ></script>
-    <script src="libs/leaflet/leaflet.js" ></script>
+    <script src="libs/leaflet/leaflet.js"></script>
     <script src="Tools.js" ></script>
     <script>
+    // Map visualisation of running of resultings commandes :
+    var southWest = L.latLng(40.206637,-3.3639186)
+    , northEast = L.latLng(50.2958534,8.4115774)
+    , maxBounds = L.latLngBounds(southWest, northEast);
+    var map = L.map('map', {maxBounds:maxBounds}).setView([46.3113351,0.942722], 4); // 46.3113351,0.942722,5z
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.markerFromBoardElement = function(elt, max_x, max_y) {
+        var x = maxBounds.getWest()
+        + elt.loc.x / max_x * (maxBounds.getWest() - maxBounds.getEast());
+        var y = maxBounds.getNorth()
+        + elt.loc.y / max_y * (maxBounds.getNorth() - maxBounds.getSouth());
+        var res = L.marker([y, x])
+        .addTo(map)
+        .bindPopup('<pre>' + window.YAML.stringify(elt) + '</pre>');// TODO : JsYaml.dump(elt)
+        if ('drone' === elt.elt_type) {
+            res.openPopup();
+        }
+        return res;
+    }
+
     if (window.Worker) {
         var myWorker = new Worker("file:///Users/mickaelmoreau/goinfre/hcode/src/main.js");
         var need_init = true;
@@ -44,9 +66,15 @@
                                 document.getElementById('game_init')
                                 .innerHTML = '<pre>' + e.data.print + '</pre>';
                                 need_init = false;
+
+                                for (var i = 0; i < e.data.board.warehouses.length; i++) {
+                                    L.markerFromBoardElement(e.data.board.warehouses[i],
+                                    e.data.board.nb_columns, e.data.board.nb_row);
+                                }
                             }
-                            document.getElementById('game_viewer')
-                            .innerHTML = '<pre>' + e.data.print + '</pre>';
+
+                            // TODO : clean and reload L.markerFromBoardElement()
+
                             break;
                         }
                         case 'log': document.getElementById('log_viewer')
@@ -71,15 +99,6 @@
     } else {
         alert('You need web workers enabled for this code to run');
     }
-
-    // Map visualisation of running of resultings commandes :
-    var map = L.map('map').setView([51.505, -0.09], 13);
-    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-    L.marker([51.5, -0.09]).addTo(map)
-    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
-    .openPopup();
     </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ if (is_node_js_env) {
 } else {
     var window = {};
     importScripts(
+        "GameBoard.js",
         'libs/ymljs/yaml.min.js'
     );
 }
@@ -24,6 +25,7 @@ GameBoardLogic.print = function () {
     } else {
         postMessage({
             type:'print',
+            board:GameBoard,
             print:window.YAML.stringify(GameBoard),
         });
     }

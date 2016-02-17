@@ -18,6 +18,7 @@ if (is_node_js_env) {
     importScripts(
         "Tools.js",
         "GameBoard.js",
+		"GameBoardLogic.js",
         "Parser.js",
         "SolverBrutforce.js",
         "SolverBrutforceV2.js",
@@ -44,13 +45,14 @@ onmessage = function(e) {
     setInterval(function(){
         GameBoardLogic.print();
     }, 2000);
+	return; // make work map for algo following
 
     Tools.enable_debug_deep = true;
     Tools.enable_debug = true;
     //var solution = SolverBrutforce.solveBoard(GameBoard);
     //var solution = SolverBrutforceV2.solveBoard(GameBoard);
-    //var solution = SolverBrutforceV3.solveBoard(GameBoard);
-    var solution = SolverBrutforceV4.solveBoard(GameBoard);
+    var solution = SolverBrutforceV3.solveBoard(GameBoard);
+    //var solution = SolverBrutforceV4.solveBoard(GameBoard);
     //var solution = SolverAStar.solveBoard(GameBoard);
     if (is_node_js_env) {
         //return console.log('[' + timeDiff + 's] ');
