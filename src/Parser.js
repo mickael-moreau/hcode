@@ -157,3 +157,7 @@ Parser.loadBoard = function(index, input, output) {
         }
     }
 };
+
+if (typeof window === "undefined" || window === null) {
+    module.exports = Parser;
+}

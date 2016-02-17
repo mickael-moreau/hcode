@@ -126,3 +126,7 @@ SolverBrutforceV2.solveBoard = function(input) {
 
     return SolverBrutforce.translate_cmd(drone_cmds);
 };
+
+if (typeof window === "undefined" || window === null) {
+    module.exports = SolverBrutforceV2;
+}

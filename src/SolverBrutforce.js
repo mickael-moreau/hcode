@@ -129,3 +129,7 @@ SolverBrutforce.translate_cmd = function (drone_cmds) {
     }, drone_cmds);
     return translated_cmds;
 }
+
+if (typeof window === "undefined" || window === null) {
+    module.exports = SolverBrutforce;
+}

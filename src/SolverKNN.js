@@ -1,11 +1,11 @@
-var SolverBrutforceV3 = {
+var SolverKNN = {
 };
-SolverBrutforceV3.computeDistance = function(loc1, loc2) {
+SolverKNN.computeDistance = function(loc1, loc2) {
     return Math.ceil(Math.sqrt(Math.pow(loc1.x - loc2.x, 2)
     + Math.pow(loc1.y - loc2.y, 2)));
 }
 
-SolverBrutforceV3.solveBoard = function(input) {
+SolverKNN.solveBoard = function(input) {
     // Tools.debug_deep('' + index + ':' + input);
     // assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
     var drone_cmds = [];
@@ -51,7 +51,7 @@ SolverBrutforceV3.solveBoard = function(input) {
     // fill drone at maximum payload, adjust with input.payload
     // Parameter : warehouse_gravity => a number in same unit as nb_turns that
     // represent a circle around warehouse
-    var warehouse_gravity = SolverBrutforceV3.computeDistance(
+    var warehouse_gravity = SolverKNN.computeDistance(
         {x:0,y:0},
         {x:input.nb_row,y:input.nb_columns}
     ) / input.warehouses.length; // Improvement ? : can be a function, taking a fixed nb of commande roundind it to adjust the gravity
@@ -67,7 +67,7 @@ SolverBrutforceV3.solveBoard = function(input) {
         return compare_by_dist_param;
     }();
     function compare_by_dist(a,b) {
-        var a_dist = SolverBrutforceV3.computeDistance(
+        var a_dist = SolverKNN.computeDistance(
             a.loc, compare_by_dist_param.ref_pos
         );
         // Warehouse gravity computing (done here to optimise for loops etc...)
@@ -85,7 +85,7 @@ SolverBrutforceV3.solveBoard = function(input) {
             }
         }
         // Back to regular compare distance function
-        var b_dist = SolverBrutforceV3.computeDistance(
+        var b_dist = SolverKNN.computeDistance(
             b.loc, compare_by_dist_param.ref_pos
         );
         if (a_dist < b_dist)
@@ -198,8 +198,8 @@ SolverBrutforceV3.solveBoard = function(input) {
 
                         var cost = cost_by_drone_worker_id[worker_id];
                         var position = position_by_drone_worker_id[worker_id];
-                        var delta_cost_to_warehouse = SolverBrutforceV3.computeDistance(position, warehouse.loc);
-                        var delta_cost_to_order = SolverBrutforceV3.computeDistance(warehouse.loc, order.loc);
+                        var delta_cost_to_warehouse = SolverKNN.computeDistance(position, warehouse.loc);
+                        var delta_cost_to_order = SolverKNN.computeDistance(warehouse.loc, order.loc);
                         var total_cost = cost + delta_cost_to_warehouse + delta_cost_to_order + 2; // our drone go to warehouse and back home + take 1 turn for loading and 1 turn to deliver
                         if (total_cost < input.nb_turns // Limite to possible move in time availability only
                             && (
@@ -278,3 +278,6 @@ SolverBrutforceV3.solveBoard = function(input) {
 
     return SolverBrutforce.translate_cmd(drone_cmds);
 };
+if (typeof window === "undefined" || window === null) {
+    module.exports = SolverKNN;
+}

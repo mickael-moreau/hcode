@@ -1,4 +1,5 @@
-if (typeof window === "undefined" || window === null) {
+var is_node_js_env = typeof global !== "undefined";
+if (!is_node_js_env && (typeof window === "undefined" || window === null)) {
     importScripts(
         'libs/stacktrace/dist/stacktrace.min.js'
     );
@@ -6,6 +7,9 @@ if (typeof window === "undefined" || window === null) {
     importScripts(
         'libs/ymljs/yaml.min.js'
     );
+}
+if (is_node_js_env) {
+    var YAML = require(__dirname + '/libs/ymljs/yaml.min.js');
 }
 
 ////////// TOOLS
@@ -157,65 +161,75 @@ Tools.map = function(callback, obj) {
                 delete obj[variable];
                 continue;
             }
-            assert(res && res.length > 0,
-                'You must return an array with [key,value] or [value] from the map callback');
-                // assert(obj instanceof Array,
-                // 'You returned an array with one value, your target object should be an array');
-                if (2 === res.length && res[0] !== variable) {
-                    delete obj[variable];
-                    variable = res[0];
-                }
-                if (2 === res.length){
-                    obj[variable] = res[1];
-                } else {
-                    obj[variable] = res[0];
-                }
+            assert(res && res.length > 0, 'You must return an array with [key,value] or [value] from the map callback');
+            // assert(obj instanceof Array,
+            // 'You returned an array with one value, your target object should be an array');
+            if (2 === res.length && res[0] !== variable) {
+                delete obj[variable];
+                variable = res[0];
+            }
+            if (2 === res.length){
+                obj[variable] = res[1];
+            } else {
+                obj[variable] = res[0];
             }
         }
-        return obj;
-    };
+    }
+    return obj;
+};
 
 
-    Tools.reduce_printer = function (key, value, initial) {
-        initial.push(key + ' -> ' + value);
-        return initial;
-    }
-    Tools.log  = function (msg) {
-        var endTime = new Date();
-        // time difference in ms
-        var timeDiff = endTime - Tools.startTime;
-        // strip the ms
-        timeDiff /= 1000;
+Tools.reduce_printer = function (key, value, initial) {
+    initial.push(key + ' -> ' + value);
+    return initial;
+}
+Tools.log  = function (msg) {
+    var endTime = new Date();
+    // time difference in ms
+    var timeDiff = endTime - Tools.startTime;
+    // strip the ms
+    timeDiff /= 1000;
 
-        console.log(msg);
-        if ('string' === typeof msg) {
-            postMessage({
-                type:'log',
-                log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
-            });
-        }
+    if ('string' === typeof msg) {
+        postMessage({ // TODO : avoid ininit loop if user call Tools.log inside there log returning event...
+            type:'log',
+            log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
+        });
     }
-    Tools.debug = function (msg) {
-        // TODO : get caller class and check enable_info by class, to be able to
-        // debug specific classes on the fly
-        if (this.enable_debug) {
-            Tools.log(msg);
-        }
+    return console.log(msg);
+}
+Tools.error = function (msg) {
+    // TODO : get caller class and check enable_info by class, to be able to
+    // debug specific classes on the fly
+    if (this.enable_error) {
+        return Tools.log(msg);
     }
-    Tools.debug_deep = function (msg) {
-        // TODO : get caller class and check enable_info by class, to be able to
-        // debug specific classes on the fly
-        if (this.enable_debug_deep) {
-            Tools.log(msg);
-        }
+}
+Tools.debug = function (msg) {
+    // TODO : get caller class and check enable_info by class, to be able to
+    // debug specific classes on the fly
+    if (this.enable_debug) {
+        return Tools.log(msg);
     }
-    Tools.info = function (msg) {
-        if (this.enable_info) {
-            Tools.log(msg);
-        }
+}
+Tools.debug_deep = function (msg) {
+    // TODO : get caller class and check enable_info by class, to be able to
+    // debug specific classes on the fly
+    if (this.enable_debug_deep) {
+        return Tools.log(msg);
     }
-    Tools.important = function (msg) {
-        if (this.enable_important) {
-            Tools.log(msg);
-        }
+}
+Tools.info = function (msg) {
+    if (this.enable_info) {
+        return Tools.log(msg);
     }
+}
+Tools.important = function (msg) {
+    if (this.enable_important) {
+        return Tools.log(msg);
+    }
+}
+
+if (typeof window === "undefined" || window === null) {
+    module.exports = Tools;
+}

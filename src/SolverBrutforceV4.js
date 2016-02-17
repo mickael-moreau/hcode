@@ -291,9 +291,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                                         && position.y !== warehouse.loc.y
                                     )
                                 )
-                            };
-                        } else {
-                            //Tools.debug({msg:'No optimal found for unloading'});
+                            };                            //Tools.debug({msg:'No optimal found for unloading'});
                         }
                     }
                 }
@@ -452,3 +450,7 @@ SolverBrutforceV4.solveBoard = function(input) {
 
     return SolverBrutforce.translate_cmd(drone_cmds);
 };
+
+if (typeof window === "undefined" || window === null) {
+    module.exports = SolverBrutforceV4;
+}
