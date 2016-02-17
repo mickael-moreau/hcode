@@ -1,20 +1,27 @@
 <html>
 <head>
+    <link rel="stylesheet" type="text/css" href="libs/leaflet/leaflet.css" media="all" />
+    <style>
+    #map { height: 180px; }
+    </style>
 </head>
 <body>
 
     <input type='file' id="board_input" title="Board Input">
 
+    <div id="map"></div>
+
     <div id="game_init"></div>
     <div id="game_viewer"></div>
-    
+
     <div id="log_viewer"></div>
 
     <script src="libs/ymljs/yaml.min.js" ></script>
+    <script src="libs/leaflet/leaflet.js" ></script>
     <script src="Tools.js" ></script>
     <script>
     if (window.Worker) {
-        var myWorker = new Worker("main.js");
+        var myWorker = new Worker("file:///Users/mickaelmoreau/goinfre/hcode/src/main.js");
         var need_init = true;
 
         document.getElementById('board_input').onchange = function(){
@@ -64,6 +71,15 @@
     } else {
         alert('You need web workers enabled for this code to run');
     }
+
+    // Map visualisation of running of resultings commandes :
+    var map = L.map('map').setView([51.505, -0.09], 13);
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+    L.marker([51.5, -0.09]).addTo(map)
+    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+    .openPopup();
     </script>
 </body>
 </html>

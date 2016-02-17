@@ -24,3 +24,10 @@ npm install node-inspector --save-dev # save in dev dependencies
 npm install mkdirp --save
 
 => then you only have to do npm install at root folder to install all
+
+TO launch main.html in chrome, open a chrome with access enabled for writting :
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --allow-file-access-from-files
+
+
+reset last commit with git :
+git reset --soft HEAD~

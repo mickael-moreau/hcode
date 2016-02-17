@@ -1,4 +1,4 @@
-if ( global.v8debug ) {
+if (typeof(global) !== 'undefined' && global.v8debug ) {
 	global.v8debug.Debug.setBreakOnException(); // speaks for itself
 }
 
