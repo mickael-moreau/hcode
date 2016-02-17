@@ -1,5 +1,6 @@
 var is_node_js_env = typeof global !== "undefined";
 if (is_node_js_env) {
+    var GameBoard = require(__dirname + '/GameBoard.js');
     var Tools = require(__dirname + '/Tools.js');
 }
 

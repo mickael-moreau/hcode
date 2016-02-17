@@ -1,9 +1,24 @@
+if ( global.v8debug ) {
+	global.v8debug.Debug.setBreakOnException(); // speaks for itself
+}
+
 var Tools = require(__dirname + '/../Tools');
 // initialise variables
-var Threads= require('webworker-threads');
+var Threads= require('webworker-threads'); // TODO bug ?? catched exception can't load when launch in debug ...
+
+var Launcher = {};
 
 //var myWorker= new Threads.Worker(__dirname + '/../main.js');
 var myWorker = require(__dirname + '/../main.js');
+{
+    myWorker.postMessageToWorker = function(e) {
+        myWorker.onmessage({data:e});
+    };
+    myWorker.postMessageToCaller = function(e) {
+        Launcher.onmessage({data:e});
+    };
+}
+
 global.myWorker = myWorker;
 var fs = require('fs');
 
@@ -20,8 +35,16 @@ if (1 === args.length) {
     throw new Error('You must specify at least one or two filepaths');
 }
 
+var mkdirp = require('mkdirp');
+var base_dir = args[1].split('/').slice(0,-1).join('/');
+mkdirp(base_dir, function (err) {
+    if (err) {
+        throw new Error('Failed to create : ' + base_dir);
+    }
+});
+
 // Handle the main logic
-myWorker.onmessage = function(e) {
+Launcher.onmessage = function(e) {
     switch (e.data.type) {
         case 'solution': {
             var solution = e.data.solution;
@@ -39,17 +62,26 @@ myWorker.onmessage = function(e) {
             });
             Tools.info('Game solved');
             Tools.info(solution);
+            process.exit(); // TODO : why do it loop on wird error !<tag:yaml.org,2002:js/undefined> '' ?? 
             break;
         }
         case 'print': {
             Tools.info(solution);
             break;
         }
-        case 'log': console.log(e.data.log);
+        case 'log': {
+            fs.appendFile('log.txt', e.data.log + '\n', function (err) {
+                if (err) {
+                    throw err;
+                }
+            });
+            //console.log(e.data.log);
+        }
         break;
         default: {
-            Tools.info('Unknow message from main web worker');
+            Tools.info('Unknow message from main web worker : ' + e.data.type);
             Tools.info(e);
+            throw new Error('Unknow message from main web worker : ' + e.data.type);
         }
     }
 }
@@ -89,7 +121,7 @@ fs.readFile(args[0], "utf8", function (err, data) {
     throw err;
   }
   //console.log(data.toString());
-  myWorker.postMessage({ data : {
+  myWorker.postMessageToWorker({
       file_content:data,
-  }});
+  });
 });

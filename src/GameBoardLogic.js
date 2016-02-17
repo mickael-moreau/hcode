@@ -12,13 +12,12 @@ if (is_node_js_env) {
 // YAML stringify bug on functions (str-replace error... user other object for
 // GameBoard logics)
 var GameBoardLogic = {
-
 };
 
 GameBoardLogic.print = function () {
     if (is_node_js_env) {
         //return console.log('[' + timeDiff + 's] ');
-        global.myWorker.postMessage({
+        myWorker.postMessageToCaller({
             type:'print',
             log: 'TODO : TypeError: YAML.stringify is not a function',//YAML.stringify(GameBoard),
         });

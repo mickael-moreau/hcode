@@ -5,11 +5,12 @@ if (!is_node_js_env && (typeof window === "undefined" || window === null)) {
     );
     var window = {};
     importScripts(
-        'libs/ymljs/yaml.min.js'
+        'libs/ymljs/yaml.min.js' // TODO : jsyaml node module instead
     );
 }
+
 if (is_node_js_env) {
-    var YAML = require(__dirname + '/libs/ymljs/yaml.min.js');
+    var JsYaml = require('js-yaml');
 }
 
 ////////// TOOLS
@@ -92,6 +93,7 @@ var Tools = {
     enable_info:true,
     enable_important:true,
     startTime:new Date(),
+    default_post_callback:'postMessageToCaller',
 };
 
 Tools.assert = function(condition, message) {
@@ -115,8 +117,8 @@ Tools.assert = function(condition, message) {
         // StackTrace.get().then(callback);
         // console.trace();
         // console.log(stringifiedStack);
-        //throw new Error();
-        throw message;
+        throw new Error(message);
+        //throw message;
         //throw stringifiedStack + message; // Fallback
         //} catch(e) {
         //   var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
@@ -192,22 +194,31 @@ Tools.log  = function (msg) {
 
     if ('string' === typeof msg) {
         if (is_node_js_env) {
-            return console.log('[' + timeDiff + 's] ');
-            // global.myWorker.postMessage({ // TODO : avoid ininit loop if user call Tools.log inside there log returning event...
-            //     type:'log',
-            //     log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
-            // });
+            global.myWorker[Tools.default_post_callback]({
+                type:'log',
+                log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
+            });
         } else {
             postMessage({ // TODO : avoid ininit loop if user call Tools.log inside there log returning event...
                 type:'log',
                 log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
             });
         }
-
+    } else {
+        return console.log(JsYaml.dump(msg));
     }
-    return console.log(msg);
 }
 Tools.error = function (msg) {
+    try {
+        var err = new Error(msg);
+        err.code = 'Manana Seguro : GameError';
+        throw err;
+    } catch (e) {
+        // only throw error to have debuger breakpoint automatic enabled
+        // when breakin on all break point, will break on all of our errors here
+    } finally {
+
+    }
     // TODO : get caller class and check enable_info by class, to be able to
     // debug specific classes on the fly
     if (this.enable_error) {

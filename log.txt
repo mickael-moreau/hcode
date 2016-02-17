@@ -1,0 +1,30 @@
+[0.051s] Game loaded
+[0.088s] available_orders size : 2.  Drone[0] did deliver the last 3 items at time : 7 giving us : 86pts on 86. End state : Order type [0]
+[0.089s] available_orders size : 1.  Drone[1] did deliver the last 1 items at time : 11 giving us : 78pts on 164. End state : Order type [2]
+[0.089s] available_orders size : 0.  Drone[0] did deliver the last 1 items at time : 18 giving us : 64pts on 228. End state : Order type [0]
+[0.097s] Game solved
+[0.044s] Game loaded
+[0.092s] available_orders size : 2.  Drone[0] did deliver the last 3 items at time : 7 giving us : 86pts on 86. End state : Order type [0]
+[0.093s] available_orders size : 1.  Drone[1] did deliver the last 1 items at time : 11 giving us : 78pts on 164. End state : Order type [2]
+[0.093s] available_orders size : 0.  Drone[0] did deliver the last 1 items at time : 18 giving us : 64pts on 228. End state : Order type [0]
+[0.102s] Game solved
+[7.587s] Game loaded
+[30.754s] available_orders size : 2.  Drone[0] did deliver the last 3 items at time : 7 giving us : 86pts on 86. End state : Order type [0]
+[31.549s] available_orders size : 1.  Drone[1] did deliver the last 1 items at time : 11 giving us : 78pts on 164. End state : Order type [2]
+[34.039s] available_orders size : 0.  Drone[0] did deliver the last 1 items at time : 18 giving us : 64pts on 228. End state : Order type [0]
+[7.679s] Game loaded
+[7.708s] available_orders size : 2.  Drone[0] did deliver the last 3 items at time : 7 giving us : 86pts on 86. End state : Order type [0]
+[7.708s] available_orders size : 1.  Drone[1] did deliver the last 1 items at time : 11 giving us : 78pts on 164. End state : Order type [2]
+[7.709s] available_orders size : 0.  Drone[0] did deliver the last 1 items at time : 18 giving us : 64pts on 228. End state : Order type [0]
+[0.075s] Game loaded
+[0.14s] available_orders size : 2.  Drone[0] did deliver the last 3 items at time : 7 giving us : 86pts on 86. End state : Order type [0]
+[0.141s] available_orders size : 1.  Drone[1] did deliver the last 1 items at time : 11 giving us : 78pts on 164. End state : Order type [2]
+[0.142s] available_orders size : 0.  Drone[0] did deliver the last 1 items at time : 18 giving us : 64pts on 228. End state : Order type [0]
+[0.152s] Game solved
+[0.157s] The file output/sujet/subject_example.in was saved!
+[4.83s] Game loaded
+[4.864s] available_orders size : 2.  Drone[0] did deliver the last 3 items at time : 7 giving us : 86pts on 86. End state : Order type [0]
+[4.865s] available_orders size : 1.  Drone[1] did deliver the last 1 items at time : 11 giving us : 78pts on 164. End state : Order type [2]
+[4.865s] available_orders size : 0.  Drone[0] did deliver the last 1 items at time : 18 giving us : 64pts on 228. End state : Order type [0]
+[4.875s] Game solved
+[4.882s] The file /Users/mickaelmoreau/goinfre/hcode/output/sujet/subjetc_example.in was saved!

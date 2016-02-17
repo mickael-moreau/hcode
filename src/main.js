@@ -1,3 +1,7 @@
+if ( global.v8debug ) {
+	global.v8debug.Debug.setBreakOnException(); // speaks for itself
+}
+
 var is_node_js_env = typeof global !== "undefined";
 if (is_node_js_env) {
     var Tools = require(__dirname + '/Tools.js');
@@ -25,6 +29,8 @@ if (is_node_js_env) {
 
 onmessage = function(e) {
     ////////// ENTRY POINT
+    Tools.assert(e.data && 'string' === typeof(e.data.file_content),
+    "You must provide a string as data argument send to onmessage");
     // By lines
     var lines = e.data.file_content.split('\n');
 
@@ -48,7 +54,7 @@ onmessage = function(e) {
     //var solution = SolverAStar.solveBoard(GameBoard);
     if (is_node_js_env) {
         //return console.log('[' + timeDiff + 's] ');
-        global.myWorker.postMessage({
+        global.myWorker.postMessageToCaller({
             type:'solution',
             solution:solution,
         });
@@ -61,8 +67,6 @@ onmessage = function(e) {
 }
 
 if (is_node_js_env) {
-    this.postMessage = function(e) {
-        onmessage(e);
-    };
+    this.onmessage = onmessage;
     module.exports = this;
 }

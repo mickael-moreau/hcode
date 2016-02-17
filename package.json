@@ -21,5 +21,12 @@
   "bugs": {
     "url": "https://github.com/mickael-moreau/hcode/issues"
   },
-  "homepage": "https://github.com/mickael-moreau/hcode"
+  "homepage": "https://github.com/mickael-moreau/hcode",
+  "dependencies": {
+    "js-yaml": "^3.5.3",
+    "mkdirp": "^0.5.1"
+  },
+  "devDependencies": {
+    "node-inspector": "^0.12.6"
+  }
 }
