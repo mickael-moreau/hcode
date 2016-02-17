@@ -4,7 +4,7 @@ var Threads= require('webworker-threads');
 
 //var myWorker= new Threads.Worker(__dirname + '/../main.js');
 var myWorker = require(__dirname + '/../main.js');
-
+global.myWorker = myWorker;
 var fs = require('fs');
 
 // get commande line arguments
@@ -12,7 +12,7 @@ var args = process.argv.slice(2);
 // Ensure some user inputs checking before going to next steps
 if (1 === args.length) {
     if (0 === args[0].indexOf("input/")) {
-        args[1] = args[0].replace(/^input/, 'output/');
+        args[1] = args[0].replace(/^input/, 'output');
     } else {
         throw new Error('If you specify only one file name, it must start with "input/"');
     }
@@ -55,12 +55,41 @@ myWorker.onmessage = function(e) {
 }
 
 // Read the input data
-fs.readFile(args[0], function (err, data) {
+// function readLines(input, func) {
+//   var remaining = '';
+//
+//   input.on('data', function(data) {
+//     remaining += data;
+//     var index = remaining.indexOf('\n');
+//     while (index > -1) {
+//       var line = remaining.substring(0, index);
+//       remaining = remaining.substring(index + 1);
+//       func(line);
+//       index = remaining.indexOf('\n');
+//     }
+//   });
+//
+//   input.on('end', function() {
+//     if (remaining.length > 0) {
+//       func(remaining);
+//     }
+//   });
+// }
+// function func(data) {
+//     // console.log('Line: ' + data);
+//     myWorker.postMessage({
+//         file_content:data,
+//     });
+// }
+// var input = fs.createReadStream(args[0]);
+// readLines(input, func);
+
+fs.readFile(args[0], "utf8", function (err, data) {
   if (err) {
     throw err;
   }
   //console.log(data.toString());
-  myWorker.postMessage({
-      file_content:this.result,
-  });
+  myWorker.postMessage({ data : {
+      file_content:data,
+  }});
 });

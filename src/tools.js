@@ -60,41 +60,6 @@ function getStackTrace() {
     return callstack;
 }
 
-function assert(condition, message) {
-    if (!condition) {
-        //try {
-        message = message || "Assertion failed";
-        //  console.trace();
-        //  if (typeof Error !== "undefined") {
-        //     // TODO : need the caller stack trace, not the current line stack
-        //     // trace, to trace error to real breaking point
-        //     throw new Error(message);
-        //  }
-
-        // https://github.com/stacktracejs/stacktrace.js
-        // var stringifiedStack = null;
-        // var callback = function(stackframes) {
-        //     stringifiedStack = stackframes.map(function(sf) {
-        //         return sf.toString();
-        //     }).join('\n');
-        // };
-        // StackTrace.get().then(callback);
-        // console.trace();
-        // console.log(stringifiedStack);
-        //throw new Error();
-        throw message;
-        //throw stringifiedStack + message; // Fallback
-        //} catch(e) {
-        //   var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
-        //   .replace(/^\s+at\s+/gm, '')
-        //   .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
-        //   .split('\n');
-        //   throw e+'\n'+stack;
-        //   // throw e;
-        //}
-    }
-}
-
 function download(filename, text) {
     var element = document.createElement('a');
     element.setAttribute('target', '_blank');
@@ -129,16 +94,51 @@ var Tools = {
     startTime:new Date(),
 };
 
+Tools.assert = function(condition, message) {
+    if (!condition) {
+        //try {
+        message = message || "Tools.assertion failed";
+        //  console.trace();
+        //  if (typeof Error !== "undefined") {
+        //     // TODO : need the caller stack trace, not the current line stack
+        //     // trace, to trace error to real breaking point
+        //     throw new Error(message);
+        //  }
+
+        // https://github.com/stacktracejs/stacktrace.js
+        // var stringifiedStack = null;
+        // var callback = function(stackframes) {
+        //     stringifiedStack = stackframes.map(function(sf) {
+        //         return sf.toString();
+        //     }).join('\n');
+        // };
+        // StackTrace.get().then(callback);
+        // console.trace();
+        // console.log(stringifiedStack);
+        //throw new Error();
+        throw message;
+        //throw stringifiedStack + message; // Fallback
+        //} catch(e) {
+        //   var stack = e.stack.replace(/^[^\(]+?[\n$]/gm, '')
+        //   .replace(/^\s+at\s+/gm, '')
+        //   .replace(/^Object.<anonymous>\s*\(/gm, '{anonymous}()@')
+        //   .split('\n');
+        //   throw e+'\n'+stack;
+        //   // throw e;
+        //}
+    }
+}
+
 // var callback = function (key, value, initial) {...}
 Tools.reduce = function(callback, obj, initial) {
     if (typeof callback === 'string') {
         callback = function (key, value, initial) {
             //return value[callback]
-            assert(false, 'TODO : accept string callback, on value ? or on initial ?');
+            Tools.assert(false, 'TODO : accept string callback, on value ? or on initial ?');
         };
     }
 
-    assert(typeof(callback) === 'function',
+    Tools.assert(typeof(callback) === 'function',
     'You must define a callback Ex : var callback = function (key, value, initial) {...}');
 
     for (var variable in obj) {
@@ -151,7 +151,7 @@ Tools.reduce = function(callback, obj, initial) {
 
 // var callback = function (key, value) {...}
 Tools.map = function(callback, obj) {
-    assert(typeof(callback) === 'function',
+    Tools.assert(typeof(callback) === 'function',
     'You must define a callback Ex : var callback = function (key, value) {...}');
 
     for (var variable in obj) {
@@ -161,8 +161,8 @@ Tools.map = function(callback, obj) {
                 delete obj[variable];
                 continue;
             }
-            assert(res && res.length > 0, 'You must return an array with [key,value] or [value] from the map callback');
-            // assert(obj instanceof Array,
+            Tools.assert(res && res.length > 0, 'You must return an array with [key,value] or [value] from the map callback');
+            // Tools.assert(obj instanceof Array,
             // 'You returned an array with one value, your target object should be an array');
             if (2 === res.length && res[0] !== variable) {
                 delete obj[variable];
@@ -191,10 +191,19 @@ Tools.log  = function (msg) {
     timeDiff /= 1000;
 
     if ('string' === typeof msg) {
-        postMessage({ // TODO : avoid ininit loop if user call Tools.log inside there log returning event...
-            type:'log',
-            log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
-        });
+        if (is_node_js_env) {
+            return console.log('[' + timeDiff + 's] ');
+            // global.myWorker.postMessage({ // TODO : avoid ininit loop if user call Tools.log inside there log returning event...
+            //     type:'log',
+            //     log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
+            // });
+        } else {
+            postMessage({ // TODO : avoid ininit loop if user call Tools.log inside there log returning event...
+                type:'log',
+                log: '[' + timeDiff + 's] ' + msg,//window.YAML.stringify(msg),
+            });
+        }
+
     }
     return console.log(msg);
 }

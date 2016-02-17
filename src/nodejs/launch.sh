@@ -1,5 +1,9 @@
 #!/bin/bash
 
 BASEDIR=$(dirname $BASH_SOURCE)
+NODE=node
+if [ "$DEBUG" = "true" ] ; then
+NODE=node-debug;
+fi
 
-node "$BASEDIR/launcher.js" "$@"
+$NODE "$BASEDIR/launcher.js" "$@"

@@ -1,11 +1,17 @@
+var is_node_js_env = typeof global !== "undefined";
+if (is_node_js_env) {
+    var Tools = require(__dirname + '/Tools.js');
+}
+
 var SolverBrutforceV4 = {
     // TODO : playing with coefficient distance may improve / deprouve resuts..
     // Sum of all coefficient must do 1
     coefficient_distance_euclidienne:0.80,
     coefficient_distance_manana_seguro:0.20,
 };
-
-assert(
+//console.log(Tools['debug']);
+//debugger;
+Tools.debug(
     SolverBrutforceV4.coefficient_distance_euclidienne
     + SolverBrutforceV4.coefficient_distance_manana_seguro
     == 1,
@@ -19,7 +25,7 @@ SolverBrutforceV4.computeDistance = function(loc1, loc2) {
 
 SolverBrutforceV4.solveBoard = function(input) {
     // Tools.debug_deep('' + index + ':' + input);
-    // assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
+    // Tools.assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
     var drone_cmds = [];
 
     // Tools
@@ -164,10 +170,10 @@ SolverBrutforceV4.solveBoard = function(input) {
                         * SolverBrutforceV4.coefficient_distance_euclidienne
                         + manana_seguro_distance
                         * SolverBrutforceV4.coefficient_distance_manana_seguro;
-                        assert(!isNaN(total_cost), 'Order : Something is wrong with total_cost');
-                        assert(!isNaN(pondered_distance), 'Order : Something is wrong with pondered_distance');
-                        assert(!isNaN(path_max_item), 'Order : Something is wrong with path_max_item');
-                        assert(path_max_item <= order.nb_item_by_type[type],
+                        Tools.assert(!isNaN(total_cost), 'Order : Something is wrong with total_cost');
+                        Tools.assert(!isNaN(pondered_distance), 'Order : Something is wrong with pondered_distance');
+                        Tools.assert(!isNaN(path_max_item), 'Order : Something is wrong with path_max_item');
+                        Tools.assert(path_max_item <= order.nb_item_by_type[type],
                             'Order : path_max_item can not be higer than order.nb_item_by_type[type]'
                         );
 
@@ -220,22 +226,22 @@ SolverBrutforceV4.solveBoard = function(input) {
                     var available_warehouses = warehouses_by_type[next_type];
                     for (var warhouse_it = 0; warhouse_it < available_warehouses.length; warhouse_it++) {
                         var warehouse = available_warehouses[warhouse_it];
-                        assert(null !== warehouse, 'Algo is may be bugging some where ?');
+                        Tools.assert(null !== warehouse, 'Algo is may be bugging some where ?');
                         if (0 === warehouse.nb_item_by_type[next_type]) {
                             continue;
                         }
 
                         var nb_items_available = warehouse.nb_item_by_type[next_type];
                         if (nb_items_available === 0) {
-                            // TODO : with current algo, shoul not go there unless speciifed in loading : clean loading board, and put assert not possible, algo bug here ?
+                            // TODO : with current algo, shoul not go there unless speciifed in loading : clean loading board, and put Tools.assert not possible, algo bug here ?
                             // Tools.debug_deep(
                             //     'warehouse[{2}] : no item of type {1} available for commande {0} '
                             //     .format(order_id, type, warehouse.id)
                             // );
-                            //assert(false, 'Should no go up to there, algo bug...');
+                            //Tools.assert(false, 'Should no go up to there, algo bug...');
                             continue;
                         }
-                        assert(nb_items_available > 0,
+                        Tools.assert(nb_items_available > 0,
                             'Warehouse : Algo bug, can not have negative item available'
                         );
                         var cost = cost_by_drone_id[drone.id];
@@ -253,8 +259,8 @@ SolverBrutforceV4.solveBoard = function(input) {
                         // / max_categories_to_fullfill;
                         var pondered_distance = euclidian_distance
                         * SolverBrutforceV4.coefficient_distance_euclidienne; // TODO : playing with coefficient distance may improve / deprouve resuts..
-                        assert(!isNaN(total_cost), 'Warehouse : Something is wrong with total_cost');
-                        assert(!isNaN(pondered_distance), 'Warehouse : Something is wrong with pondered_distance');
+                        Tools.assert(!isNaN(total_cost), 'Warehouse : Something is wrong with total_cost');
+                        Tools.assert(!isNaN(pondered_distance), 'Warehouse : Something is wrong with pondered_distance');
                         var weight = input.weights_by_type[next_type];
                         var path_max_item = warehouse.nb_item_by_type[next_type];
                         var path_payload = path_max_item * weight;
@@ -264,7 +270,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                             //Tools.debug_deep('Adjusted payload : ' + path_payload);
                         }
                         path_max_item = Math.floor(path_payload / weight);
-                        assert(path_max_item <= warehouse.nb_item_by_type[next_type],
+                        Tools.assert(path_max_item <= warehouse.nb_item_by_type[next_type],
                             'Warehouse : path_max_item can not be higer than warehouse.nb_item_by_type[next_type]'
                         );
 
@@ -295,7 +301,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                         }
                     }
                 }
-                //assert(null !== w_optimal, 'Algo bug, w_optimal must be set'); // TODO : it can be null if total_cost < input.nb_turns ===> bad assert ?
+                //Tools.assert(null !== w_optimal, 'Algo bug, w_optimal must be set'); // TODO : it can be null if total_cost < input.nb_turns ===> bad Tools.assert ?
                 if (null !== w_optimal && (null===optimal || w_optimal.is_faster_to_stop_at_warehouse)) {
                     if (w_optimal.drone.nb_item > 0) {
                         cmd = {
@@ -316,15 +322,15 @@ SolverBrutforceV4.solveBoard = function(input) {
                             w_optimal.warehouse.nb_item_by_type[w_optimal.drone.type]
                             = w_optimal.drone.nb_item;
                         }
-                        assert(!isNaN(w_optimal.warehouse.nb_item_by_type[w_optimal.drone.type]),
+                        Tools.assert(!isNaN(w_optimal.warehouse.nb_item_by_type[w_optimal.drone.type]),
                         '(2) Warhouse : Something is wrong with w_optimal.warehouse.nb_item_by_type');
-                        assert((w_optimal.warehouse.nb_item_by_type[w_optimal.drone.type] >= 0),
+                        Tools.assert((w_optimal.warehouse.nb_item_by_type[w_optimal.drone.type] >= 0),
                         '(2) Warhouse : w_optimal.warehouse.nb_item_by_type must stay positive');
                         w_optimal.drone.nb_item = 0;
                     }
                     if (max_of_orders_items_by_type[w_optimal.type] > 0) { // only load product that can be delivered on day
                         var path_max_item = w_optimal.path_max_item;
-                        assert(!isNaN(path_max_item), 'Warehouse : Something is wrong with path_max_item');
+                        Tools.assert(!isNaN(path_max_item), 'Warehouse : Something is wrong with path_max_item');
                         w_optimal.drone.type = w_optimal.type;
                         cmd = {
                             type:SolverBrutforce.CMD_LOAD,
@@ -346,16 +352,16 @@ SolverBrutforceV4.solveBoard = function(input) {
                         }
                         position_by_drone_id[w_optimal.drone.id] = w_optimal.warehouse.loc;
                         w_optimal.warehouse.nb_item_by_type[w_optimal.type] -= path_max_item;
-                        assert(!isNaN(w_optimal.warehouse.nb_item_by_type[w_optimal.type]),
+                        Tools.assert(!isNaN(w_optimal.warehouse.nb_item_by_type[w_optimal.type]),
                         '(1) Warhouse : Something is wrong with w_optimal.warehouse.nb_item_by_type');
-                        assert((w_optimal.warehouse.nb_item_by_type[w_optimal.type] >= 0),
+                        Tools.assert((w_optimal.warehouse.nb_item_by_type[w_optimal.type] >= 0),
                         '(1) Warhouse : w_optimal.warehouse.nb_item_by_type must stay positive');
                         if (0 === w_optimal.warehouse.nb_item_by_type[w_optimal.type]) {
                             //warehouses_by_type[w_optimal.type].splice(w_optimal.warehouse_id, 1);
                             // TODO : remove them /  add them back on load methode etc...
                         }
                         w_optimal.drone.nb_item += path_max_item;
-                        assert(!isNaN(w_optimal.drone.nb_item), 'Warhouse : Something is wrong with w_optimal.drone.nb_item');
+                        Tools.assert(!isNaN(w_optimal.drone.nb_item), 'Warhouse : Something is wrong with w_optimal.drone.nb_item');
                     }
                     continue; // Switch to next drone, this drone will compute it's disance next turn, taking new position from others ones
                 } else {
@@ -406,7 +412,7 @@ SolverBrutforceV4.solveBoard = function(input) {
             .nbCategoriesToFullfill -= 1;
             // TODO : remove from optimal.order.nb_item_by_type ?? not mandatory...
         }
-        assert(!isNaN(optimal.order.nb_item_by_type[optimal.type]),
+        Tools.assert(!isNaN(optimal.order.nb_item_by_type[optimal.type]),
         '213: Warhouse : Something is wrong with optimal.order.nb_item_by_type');
         var order_is_fullfilled = false;
         for (var type in optimal.order.nb_item_by_type) {
@@ -430,8 +436,8 @@ SolverBrutforceV4.solveBoard = function(input) {
         }
         optimal.drone.nb_item -= optimal.path_max_item;
         // optimal.drone.type = optimal.type; Done type do not change on deliver
-        assert(optimal.drone.type === optimal.type, 'Type should not change');
-        assert(!isNaN(optimal.drone.nb_item), 'Something is wrong with drone.nb_item');
+        Tools.assert(optimal.drone.type === optimal.type, 'Type should not change');
+        Tools.assert(!isNaN(optimal.drone.nb_item), 'Something is wrong with drone.nb_item');
 
         // send command with that optimal move
         cmd = {

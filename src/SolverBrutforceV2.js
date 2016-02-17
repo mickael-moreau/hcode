@@ -1,3 +1,8 @@
+var is_node_js_env = typeof global !== "undefined";
+if (is_node_js_env) {
+    var Tools = require(__dirname + '/Tools.js');
+}
+
 var SolverBrutforceV2 = {
 };
 
@@ -5,7 +10,7 @@ var SolverBrutforceV2 = {
 // 100rows,1 00columns,3drones,50turns,maxpayloadis500u
 SolverBrutforceV2.solveBoard = function(input) {
     // Tools.debug_deep('' + index + ':' + input);
-    // assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
+    // Tools.assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
     var drone_cmds = [];
     var drone_busy_liste = {};
 
@@ -60,7 +65,7 @@ SolverBrutforceV2.solveBoard = function(input) {
                         .format(order_id, type));
                         continue;
                     }
-                    assert(nb_items_available > 0,
+                    Tools.assert(nb_items_available > 0,
                     'Algo bug, can not have negative item available');
                     if (path_max_item > nb_items_available) {// OPTIM : >= ?
                         path_max_item = nb_items_available;
@@ -117,7 +122,7 @@ SolverBrutforceV2.solveBoard = function(input) {
                 drone_cmds.push(cmd);
                 nb_items -= path_max_item;
             }
-            //assert(nb_items === 0,
+            //Tools.assert(nb_items === 0,
             //'Algo bug, should have check all orders');
             return [type, nb_items]; // TODO : not used return code => should be .walk function
         }, order.nb_item_by_type);

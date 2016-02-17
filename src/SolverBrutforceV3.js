@@ -1,3 +1,8 @@
+var is_node_js_env = typeof global !== "undefined";
+if (is_node_js_env) {
+    var Tools = require(__dirname + '/Tools.js');
+}
+
 var SolverBrutforceV3 = {
 };
 SolverBrutforceV3.computeDistance = function(loc1, loc2) {
@@ -7,7 +12,7 @@ SolverBrutforceV3.computeDistance = function(loc1, loc2) {
 
 SolverBrutforceV3.solveBoard = function(input) {
     // Tools.debug_deep('' + index + ':' + input);
-    // assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
+    // Tools.assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
     var drone_cmds = [];
 
     // Tools
@@ -83,7 +88,7 @@ SolverBrutforceV3.solveBoard = function(input) {
                             // );
                             continue;
                         }
-                        assert(nb_items_available > 0,
+                        Tools.assert(nb_items_available > 0,
                             'Algo bug, can not have negative item available'
                         );
                         if (path_max_item > nb_items_available) {// OPTIM : >= ?
