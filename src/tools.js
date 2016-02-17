@@ -230,6 +230,6 @@ Tools.important = function (msg) {
     }
 }
 
-if (typeof window === "undefined" || window === null) {
+if (is_node_js_env) {
     module.exports = Tools;
 }

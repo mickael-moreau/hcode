@@ -1,7 +1,10 @@
 var Tools = require(__dirname + '/../Tools');
 // initialise variables
 var Threads= require('webworker-threads');
-var myWorker= new Threads.Worker(__dirname + '/../main.js');
+
+//var myWorker= new Threads.Worker(__dirname + '/../main.js');
+var myWorker = require(__dirname + '/../main.js');
+
 var fs = require('fs');
 
 // get commande line arguments

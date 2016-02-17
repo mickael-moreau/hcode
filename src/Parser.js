@@ -158,6 +158,6 @@ Parser.loadBoard = function(index, input, output) {
     }
 };
 
-if (typeof window === "undefined" || window === null) {
+if (is_node_js_env) {
     module.exports = Parser;
 }

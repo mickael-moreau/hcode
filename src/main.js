@@ -1,3 +1,6 @@
+if (typeof window === "undefined" || window === null) {
+    module.exports = Parser;
+}
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
 importScripts(
     "Tools.js",
@@ -37,4 +40,8 @@ onmessage = function(e) {
         type:'solution',
         solution:solution,
     });
+}
+
+if (is_node_js_env) {
+    module.exports = this;
 }

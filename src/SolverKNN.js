@@ -278,6 +278,6 @@ SolverKNN.solveBoard = function(input) {
 
     return SolverBrutforce.translate_cmd(drone_cmds);
 };
-if (typeof window === "undefined" || window === null) {
+if (is_node_js_env) {
     module.exports = SolverKNN;
 }

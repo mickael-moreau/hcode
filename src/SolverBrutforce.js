@@ -130,6 +130,6 @@ SolverBrutforce.translate_cmd = function (drone_cmds) {
     return translated_cmds;
 }
 
-if (typeof window === "undefined" || window === null) {
+if (is_node_js_env) {
     module.exports = SolverBrutforce;
 }
