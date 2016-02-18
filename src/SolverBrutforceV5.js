@@ -5,27 +5,44 @@ if (is_node_js_env) {
     var Tools = require(__dirname + '/Tools.js');
 }
 
-var SolverBrutforceV4 = {
-    // TODO : playing with coefficient distance may improve / deprouve resuts..
-    // Sum of all coefficient must do 1
-    coefficient_distance_euclidienne:0.80,
-    coefficient_distance_manana_seguro:0.20,
+var SolverBrutforceV5 = {
+    // rayon de calcul pour déterminer l'aspect central d'un point vis à vis de
+    // de ses voisins par une fonction de distance prenant en compte
+    // - minimisation du poid total des livraisons
+    // -
+    density_radius:GameBoard.nb_row, nb_columns,
+    // The number of density center to keep in the computation of where to
+    // drive drones to
+    nb_density_centers:1,
+    // The best nb_density_centers density points from best to lowest
+    best_densities:[],
+
+    // coefficients used to chose the best commande, by commandes actions
+    coefficients:{
+        SolverBrutforce.CMD_LOAD: {
+            coefficient_distance_euclidienne:0.80,
+            coefficient_distance_manana_seguro:0.20,
+            optimal: {
+                distance:0, // resulting cost fun is allways between 0 and 1
+                drone_cmd:null,
+            }
+        }
+    },
 };
-//console.log(Tools['debug']);
-//debugger;
+
 Tools.debug(
-    SolverBrutforceV4.coefficient_distance_euclidienne
-    + SolverBrutforceV4.coefficient_distance_manana_seguro
+    SolverBrutforceV5.coefficient_distance_euclidienne
+    + SolverBrutforceV5.coefficient_distance_manana_seguro
     == 1,
     'Sum of all coefficient must do 1'
 )
 
-SolverBrutforceV4.computeDistance = function(loc1, loc2) {
+SolverBrutforceV5.computeDistance = function(loc1, loc2) {
     return Math.ceil(Math.sqrt(Math.pow(loc1.x - loc2.x, 2)
     + Math.pow(loc1.y - loc2.y, 2)));
 }
 
-SolverBrutforceV4.solveBoard = function(input) {
+SolverBrutforceV5.solveBoard = function(input) {
     // Tools.debug_deep('' + index + ':' + input);
     // Tools.assert(!isNaN(output.nb_row), 'nb_row should be a defined number');
     var drone_cmds = [];
@@ -43,9 +60,7 @@ SolverBrutforceV4.solveBoard = function(input) {
             return [type, nb_item];
         }, warehouse.nb_item_by_type);
     }
-    var warehouse_gravity = SolverBrutforceV4.computeDistance(
-        {x:0,y:0},
-        {x:input.nb_row,y:input.nb_columns}
+    var warehouse_gravity =
     );// / input.warehouses.length; // Improvement ? : can be a function, taking a fixed nb of commande roundind it to adjust the gravity
 
     var cost_by_drone_id = {};
@@ -158,7 +173,7 @@ SolverBrutforceV4.solveBoard = function(input) {
 
                         var cost = cost_by_drone_id[drone.id];
                         var position = position_by_drone_id[drone.id];
-                        var delta_cost_to_order = SolverBrutforceV4
+                        var delta_cost_to_order = SolverBrutforceV5
                         .computeDistance(position, order.loc);
                         var total_cost = cost + delta_cost_to_order + 1; // our drone go to to order and 1 turn to deliver
                         // Distances must be values between [0..1], associating meanings this way : [best..worst]
@@ -169,9 +184,9 @@ SolverBrutforceV4.solveBoard = function(input) {
                         .nbCategoriesToFullfill
                         / max_categories_to_fullfill;
                         var pondered_distance = euclidian_distance
-                        * SolverBrutforceV4.coefficient_distance_euclidienne
+                        * SolverBrutforceV5.coefficient_distance_euclidienne
                         + manana_seguro_distance
-                        * SolverBrutforceV4.coefficient_distance_manana_seguro;
+                        * SolverBrutforceV5.coefficient_distance_manana_seguro;
                         Tools.assert(!isNaN(total_cost), 'Order : Something is wrong with total_cost');
                         Tools.assert(!isNaN(pondered_distance), 'Order : Something is wrong with pondered_distance');
                         Tools.assert(!isNaN(path_max_item), 'Order : Something is wrong with path_max_item');
@@ -248,7 +263,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                         );
                         var cost = cost_by_drone_id[drone.id];
                         var position = position_by_drone_id[drone.id];
-                        var delta_cost_to_warehouse = SolverBrutforceV4
+                        var delta_cost_to_warehouse = SolverBrutforceV5
                         .computeDistance(position, warehouse.loc);
                         var total_cost = cost + delta_cost_to_warehouse + 1; // our drone go to warehouse + take 1 turn for loading
                         // Distances must be values between [0..1], associating meanings this way : [best..worst]
@@ -260,7 +275,7 @@ SolverBrutforceV4.solveBoard = function(input) {
                         // .nbCategoriesToFullfill
                         // / max_categories_to_fullfill;
                         var pondered_distance = euclidian_distance
-                        * SolverBrutforceV4.coefficient_distance_euclidienne; // TODO : playing with coefficient distance may improve / deprouve resuts..
+                        * SolverBrutforceV5.coefficient_distance_euclidienne; // TODO : playing with coefficient distance may improve / deprouve resuts..
                         Tools.assert(!isNaN(total_cost), 'Warehouse : Something is wrong with total_cost');
                         Tools.assert(!isNaN(pondered_distance), 'Warehouse : Something is wrong with pondered_distance');
                         var weight = input.weights_by_type[next_type];
@@ -460,5 +475,5 @@ SolverBrutforceV4.solveBoard = function(input) {
 };
 
 if (is_node_js_env) {
-    module.exports = SolverBrutforceV4;
+    module.exports = SolverBrutforceV5;
 }
