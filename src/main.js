@@ -11,7 +11,8 @@ if (is_node_js_env) {
     var SolverBrutforce = require(__dirname + '/SolverBrutforce.js');
     var SolverBrutforceV2 = require(__dirname + '/SolverBrutforceV2.js');
     var SolverBrutforceV3 = require(__dirname + '/SolverBrutforceV3.js');
-    var SolverBrutforceV4 = require(__dirname + '/SolverBrutforceV4.js');
+	var SolverBrutforceV4 = require(__dirname + '/SolverBrutforceV4.js');
+	var SolverBrutforceV5 = require(__dirname + '/SolverBrutforceV5.js');
     var SolverAStar = require(__dirname + '/SolverAStar.js');
 } else {
     // https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers
@@ -23,7 +24,8 @@ if (is_node_js_env) {
         "SolverBrutforce.js",
         "SolverBrutforceV2.js",
         "SolverBrutforceV3.js",
-        "SolverBrutforceV4.js",
+		"SolverBrutforceV4.js",
+		"SolverBrutforceV5.js",
         "SolverAStar.js"
     );
 }
@@ -51,19 +53,22 @@ onmessage = function(e) {
     GameBoardLogic.print();
 	// TODO : replace setInterval by an event system callback ?
 	// => ex on_command_added ? => GameBoardLogic handle set of all cmd ?
-    setInterval(function(){
-		if (!GameBoard.is_paused) {
-			GameBoardLogic.print();
-		}
-    }, 5000); // TODO : step by step ??
-	return; // make work map for algo following
+    // setInterval(function(){
+	// 	if (!GameBoard.is_paused) {
+	// 		GameBoardLogic.print();
+	// 	}
+    // }, 5000); // TODO : step by step ??
+	SolverBrutforceV5.onOrderFullfilled = function() {
+		GameBoardLogic.print();
+	};
 
     Tools.enable_debug_deep = true;
     Tools.enable_debug = true;
     //var solution = SolverBrutforce.solveBoard(GameBoard);
     //var solution = SolverBrutforceV2.solveBoard(GameBoard);
-    var solution = SolverBrutforceV3.solveBoard(GameBoard);
+    //var solution = SolverBrutforceV3.solveBoard(GameBoard);
     //var solution = SolverBrutforceV4.solveBoard(GameBoard);
+	var solution = SolverBrutforceV5.solveBoard(GameBoard);
     //var solution = SolverAStar.solveBoard(GameBoard);
     if (is_node_js_env) {
         //return console.log('[' + timeDiff + 's] ');
