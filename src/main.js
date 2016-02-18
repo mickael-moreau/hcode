@@ -29,7 +29,14 @@ if (is_node_js_env) {
 }
 
 onmessage = function(e) {
+	if ('toggle_pause' === e.data.type) {
+		GameBoard.is_paused = !GameBoard.is_paused;
+		return;
+	}
+
     ////////// ENTRY POINT
+	Tools.assert('file_input' === e.data.type, 'Type note handled : '
+	+ e.data.type);
     Tools.assert(e.data && 'string' === typeof(e.data.file_content),
     "You must provide a string as data argument send to onmessage");
     // By lines
@@ -43,8 +50,10 @@ onmessage = function(e) {
 
     GameBoardLogic.print();
     setInterval(function(){
-        GameBoardLogic.print();
-    }, 2000);
+		if (!GameBoard.is_paused) {
+			GameBoardLogic.print();
+		}
+    }, 5000); // TODO : step by step ??
 	return; // make work map for algo following
 
     Tools.enable_debug_deep = true;

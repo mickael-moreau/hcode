@@ -2,12 +2,18 @@
 <head>
     <link rel="stylesheet" type="text/css" href="libs/leaflet/leaflet.css" media="all" />
     <style>
-    #map { height: 180px; }
+    #map { height: 100%; }
+    .marker-popup { max-height: 200px;overflow: scroll;}
     </style>
 </head>
 <body>
 
     <input type='file' id="board_input" title="Board Input">
+    <input type='button' onclick="
+    myWorker.postMessage({
+        type:'toggle_pause',
+    });"
+    value='Toggle pause'>
 
     <div id="map"></div>
 
@@ -20,22 +26,62 @@
     <script src="libs/leaflet/leaflet.js"></script>
     <script src="Tools.js" ></script>
     <script>
+    var GameBoard = {};
     // Map visualisation of running of resultings commandes :
-    var southWest = L.latLng(40.206637,-3.3639186)
-    , northEast = L.latLng(50.2958534,8.4115774)
+    var board_group = L.layerGroup([]);
+    var w_group = L.layerGroup([]);
+    var o_group = L.layerGroup([]);
+    var d_group = L.layerGroup([]);
+
+    var southWest = L.latLng(0,0)
+    , northEast = L.latLng(100,100)
     , maxBounds = L.latLngBounds(southWest, northEast);
-    var map = L.map('map', {maxBounds:maxBounds}).setView([46.3113351,0.942722], 4); // 46.3113351,0.942722,5z
+
+    var map = L.map('map', {
+        crs: L.CRS.Simple,
+        minZoom: -5,
+        layers:[w_group, o_group, d_group, board_group],
+    }).fitBounds(maxBounds);
+
+    //var grayscale = L.tileLayer(mapboxUrl, {id: 'MapID', attribution: mapboxAttribution});
+    var baseMaps = {
+        // "Grayscale": grayscale,
+        // "Streets": streets
+    };
+    var overlayMaps = {
+        "Plateau de jeu": board_group,
+        "Warehouses":w_group,
+        "Orders":o_group,
+        "Drones":d_group,
+    };
+    L.control.layers(baseMaps, overlayMaps).addTo(map);
+
+    var LeafIcon = L.Icon.extend({
+        options: {
+            //shadowUrl: 'imgs/leaf-shadow.png',
+            iconSize:     [38, 95],
+            //shadowSize:   [50, 64],
+            iconAnchor:   [22, 94],
+            //shadowAnchor: [4, 62],
+            popupAnchor:  [-3, -76]
+        }
+    });
+    var w_icon = new LeafIcon({iconUrl: 'imgs/leaf-green.png'})
+    , o_icon = new LeafIcon({iconUrl: 'imgs/leaf-red.png'})
+    , d_icon = new LeafIcon({iconUrl: 'imgs/leaf-orange.png'});
+
+    var image = L.imageOverlay('imgs/map_v2.png', maxBounds).addTo(map);
+
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
-    L.markerFromBoardElement = function(elt, max_x, max_y) {
-        var x = maxBounds.getWest()
-        + elt.loc.x / max_x * (maxBounds.getWest() - maxBounds.getEast());
-        var y = maxBounds.getNorth()
-        + elt.loc.y / max_y * (maxBounds.getNorth() - maxBounds.getSouth());
-        var res = L.marker([y, x])
-        .addTo(map)
-        .bindPopup('<pre>' + window.YAML.stringify(elt) + '</pre>');// TODO : JsYaml.dump(elt)
+
+    L.markerFromBoardElement = function(elt, max_x, max_y, icon) {
+        var normalisator = Math.max(max_x, max_y);
+        var x = elt.loc.x / normalisator * maxBounds.getEast();
+        var y = elt.loc.y / normalisator * maxBounds.getNorth();
+        var res = L.marker([x, y], {icon:icon})
+        .bindPopup('<pre class="marker-popup">' + window.YAML.stringify(elt) + '</pre>');// TODO : JsYaml.dump(elt)
         if ('drone' === elt.elt_type) {
             res.openPopup();
         }
@@ -62,19 +108,60 @@
                             break;
                         }
                         case 'print': {
+                            GameBoard = e.data.board;
                             if (need_init) {
                                 document.getElementById('game_init')
                                 .innerHTML = '<pre>' + e.data.print + '</pre>';
                                 need_init = false;
-
-                                for (var i = 0; i < e.data.board.warehouses.length; i++) {
-                                    L.markerFromBoardElement(e.data.board.warehouses[i],
-                                    e.data.board.nb_columns, e.data.board.nb_row);
-                                }
                             }
+                            // re-init overlays
+                            w_group.clearLayers();
+                            o_group.clearLayers();
+                            d_group.clearLayers();
+                            board_group.clearLayers();
 
-                            // TODO : clean and reload L.markerFromBoardElement()
+                            var normalisator = Math.max(
+                                GameBoard.nb_row, GameBoard.nb_columns
+                            );
+                            var dx = GameBoard.nb_row / normalisator
+                            * maxBounds.getEast();
+                            var dy = GameBoard.nb_columns / normalisator
+                            * maxBounds.getNorth();
+                            var board_background = L.polygon([
+                                [0 , 0 ],
+                                [dx, 0 ],
+                                [dx, dy],
+                                [0 , dy],
+                            ],{
+                                color: 'blue',
+                                fillColor: '#f03',
+                                fillOpacity: 0.24
+                            });
+                            board_group.addLayer(board_background);
 
+                            // display overlays
+                            for (var i = 0; i < GameBoard.warehouses.length; i++) {
+                                var layer = L.markerFromBoardElement(
+                                    GameBoard.warehouses[i],
+                                    GameBoard.nb_row,
+                                    GameBoard.nb_columns,
+                                    w_icon
+                                );
+                                w_group.addLayer(layer);
+                            }
+                            for (var i = 0; i < GameBoard.orders.length; i++) {
+                                var layer = L.markerFromBoardElement(
+                                    GameBoard.orders[i],
+                                    GameBoard.nb_row,
+                                    GameBoard.nb_columns,
+                                    o_icon
+                                );
+                                o_group.addLayer(layer);
+                            }
+                            // update map display
+                            map.invalidateSize();
+                            //w_group.update();
+                            //map.redraw();
                             break;
                         }
                         case 'log': document.getElementById('log_viewer')
@@ -90,6 +177,7 @@
                 // Entire file
                 //console.log(this.result);
                 myWorker.postMessage({
+                    type:'file_input',
                     file_content:this.result,
                 });
             };
