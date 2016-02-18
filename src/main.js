@@ -49,6 +49,8 @@ onmessage = function(e) {
     Tools.info(GameBoard);
 
     GameBoardLogic.print();
+	// TODO : replace setInterval by an event system callback ?
+	// => ex on_command_added ? => GameBoardLogic handle set of all cmd ?
     setInterval(function(){
 		if (!GameBoard.is_paused) {
 			GameBoardLogic.print();
