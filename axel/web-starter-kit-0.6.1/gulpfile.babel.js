@@ -178,6 +178,11 @@ gulp.task('webserver', function() {
 gulp.task('serve', ['scripts', 'styles'], () => {
   browserSync({
     logLevel: "debug",
+    middleware: function (req, res, next) {
+      console.log("Hi from middleware");
+      //console.log(req);
+      next();
+    },
 
     notify: false,
     // Customize the Browsersync console logging prefix
