@@ -33,6 +33,8 @@ import swPrecache from 'sw-precache';
 import gulpLoadPlugins from 'gulp-load-plugins';
 import {output as pagespeed} from 'psi';
 import pkg from './package.json';
+import server from 'gulp-server-livereload';
+
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
@@ -161,6 +163,16 @@ gulp.task('html', () => {
 
 // Clean output directory
 gulp.task('clean', () => del(['.tmp', 'dist/*', '!dist/.git'], {dot: true}));
+
+// axou
+gulp.task('webserver', function() {
+  gulp.src('app')
+    .pipe(server({
+      livereload: true,
+      directoryListing: true,
+      open: true
+    }));
+});
 
 // Watch files for changes & reload
 gulp.task('serve', ['scripts', 'styles'], () => {
