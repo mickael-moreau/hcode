@@ -177,6 +177,8 @@ gulp.task('webserver', function() {
 // Watch files for changes & reload
 gulp.task('serve', ['scripts', 'styles'], () => {
   browserSync({
+    logLevel: "debug",
+
     notify: false,
     // Customize the Browsersync console logging prefix
     logPrefix: 'WSK',
