@@ -30,3 +30,5 @@ alias  ct='mvn clean install -U -Dgpg.skip=true                 2>/dev/null    |
 JAVA doc
 // read file ; https://eyalgo.com/2015/01/06/java-8-stream-and-lambda-expressions-parsing-file-example/
 
+hello
+hello
